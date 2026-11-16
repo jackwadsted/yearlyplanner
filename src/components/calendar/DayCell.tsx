@@ -57,7 +57,7 @@ export const DayCell: React.FC<DayCellProps> = ({
     );
   }
 
-  let bgClass = 'bg-white hover:bg-slate-50 border-slate-200';
+  let bgClass = 'bg-surface hover:bg-slate-50 border-slate-200';
   let textClass = 'text-slate-700';
   let badgeClass = '';
 
@@ -65,13 +65,13 @@ export const DayCell: React.FC<DayCellProps> = ({
     bgClass = 'bg-slate-50/70 border-slate-200/60 opacity-60';
     textClass = 'text-slate-400';
   } else if (isVacation) {
-    bgClass = 'bg-teal-50 border-teal-300 ring-1 ring-teal-200/50 hover:bg-teal-100/70';
-    textClass = 'text-teal-900 font-medium';
-    badgeClass = 'bg-teal-600 text-white';
+    bgClass = 'bg-brand-50 border-brand-300 ring-1 ring-brand-200/50 hover:bg-brand-100/70';
+    textClass = 'text-brand-900 font-medium';
+    badgeClass = 'bg-brand-600 text-white';
   } else if (isBankHoliday) {
-    bgClass = 'bg-indigo-50 border-indigo-300 ring-1 ring-indigo-200/50 hover:bg-indigo-100/70';
-    textClass = 'text-indigo-900 font-medium';
-    badgeClass = 'bg-indigo-600 text-white';
+    bgClass = 'bg-accent-50 border-accent-300 ring-1 ring-accent-200/50 hover:bg-accent-100/70';
+    textClass = 'text-accent-900 font-medium';
+    badgeClass = 'bg-accent-600 text-white';
   } else if (isSickness) {
     bgClass = 'bg-amber-50 border-amber-300 ring-1 ring-amber-200/50 hover:bg-amber-100/70';
     textClass = 'text-amber-900 font-medium';
@@ -85,7 +85,7 @@ export const DayCell: React.FC<DayCellProps> = ({
   }
 
   if (isSelected) {
-    bgClass += ' ring-2 ring-teal-500 z-10';
+    bgClass += ' ring-2 ring-brand-500 z-10';
   }
 
   // Today marker
@@ -133,7 +133,7 @@ export const DayCell: React.FC<DayCellProps> = ({
         <span
           className={`text-xs font-mono font-medium rounded-full w-5 h-5 flex items-center justify-center ${
             isToday
-              ? 'bg-teal-600 text-white font-bold'
+              ? 'bg-brand-600 text-white font-bold'
               : textClass
           }`}
         >
@@ -144,13 +144,13 @@ export const DayCell: React.FC<DayCellProps> = ({
         <div className="flex items-center gap-1">
           {bankHoliday && !isBankHoliday && (
             <span
-              className="w-2 h-2 rounded-full bg-indigo-500 ring-2 ring-white"
+              className="w-2 h-2 rounded-full bg-accent-500 ring-2 ring-surface"
               title={`UK Bank Holiday: ${bankHoliday.title}`}
             />
           )}
 
-          {isVacation && <Palmtree className="w-3.5 h-3.5 text-teal-600 shrink-0" />}
-          {isBankHoliday && <Landmark className="w-3.5 h-3.5 text-indigo-600 shrink-0" />}
+          {isVacation && <Palmtree className="w-3.5 h-3.5 text-brand-600 shrink-0" />}
+          {isBankHoliday && <Landmark className="w-3.5 h-3.5 text-accent-600 shrink-0" />}
           {isSickness && <Activity className="w-3.5 h-3.5 text-amber-600 shrink-0" />}
           {isNonWorking && dayOfWeek !== 0 && dayOfWeek !== 6 && (
             <span title="Compressed Day Off">
@@ -174,7 +174,7 @@ export const DayCell: React.FC<DayCellProps> = ({
 
         {/* Bank Holiday Name truncation if applicable */}
         {bankHoliday && (
-          <span className="text-[9px] text-indigo-700 font-medium truncate max-w-[55px]" title={bankHoliday.title}>
+          <span className="text-[9px] text-accent-700 font-medium truncate max-w-[55px]" title={bankHoliday.title}>
             {bankHoliday.title.replace('Bank Holiday', 'BH').replace('bank holiday', 'BH')}
           </span>
         )}

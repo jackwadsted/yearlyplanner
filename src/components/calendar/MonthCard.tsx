@@ -46,7 +46,7 @@ export const MonthCard: React.FC<MonthCardProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm p-3 sm:p-4 hover:shadow-md transition-shadow">
+    <div className="bg-surface rounded-xl border border-slate-200/80 shadow-sm p-3 sm:p-4 hover:shadow-md transition-shadow">
       {/* Month Card Header */}
       <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-100">
         <h3 className="font-semibold text-slate-800 text-sm sm:text-base flex items-center gap-2">
@@ -55,12 +55,12 @@ export const MonthCard: React.FC<MonthCardProps> = ({
 
         <div className="flex items-center gap-1.5 text-[11px] font-mono">
           {monthlyVacationHours > 0 && (
-            <span className="px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 font-medium border border-teal-200/60" title="Vacation hours in this month">
+            <span className="px-1.5 py-0.5 rounded bg-brand-50 text-brand-700 font-medium border border-brand-200/60" title="Vacation hours in this month">
               {monthlyVacationHours}h vac
             </span>
           )}
           {monthlyBankHolidayHours > 0 && (
-            <span className="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 font-medium border border-indigo-200/60" title="Bank Holiday hours in this month">
+            <span className="px-1.5 py-0.5 rounded bg-accent-50 text-accent-700 font-medium border border-accent-200/60" title="Bank Holiday hours in this month">
               {monthlyBankHolidayHours}h BH
             </span>
           )}

@@ -8,7 +8,7 @@ import {
 } from './services/storage';
 import { fetchBankHolidays, getFiscalYearBankHolidays } from './services/bankHolidays';
 import { calculateAllowanceSummary, getFiscalYearKey } from './utils/calculator';
-import { AppState, DayRecord, BankHoliday, UserConfig, AllowanceAdjustment, PaintTool } from './types';
+import { AppState, DayRecord, BankHoliday, UserConfig, AllowanceAdjustment, PaintTool, ThemeId } from './types';
 import { FiscalYearCalendar } from './components/calendar/FiscalYearCalendar';
 import { DayEditModal } from './components/calendar/DayEditModal';
 import { AllowanceDashboard } from './components/dashboard/AllowanceDashboard';
@@ -51,6 +51,11 @@ export default function App() {
       }
     );
   }, [appState.years, fyKey]);
+
+  // Apply selected theme
+  useEffect(() => {
+    document.documentElement.dataset.theme = appState.config.theme;
+  }, [appState.config.theme]);
 
   // Auto-save state changes
   useEffect(() => {
@@ -231,6 +236,14 @@ export default function App() {
     }));
   };
 
+  // Change theme (applies immediately)
+  const handleThemeChange = (theme: ThemeId) => {
+    setAppState((prev) => ({
+      ...prev,
+      config: { ...prev.config, theme },
+    }));
+  };
+
   // Add Allowance Adjustment
   const handleAddAdjustment = (adj: Omit<AllowanceAdjustment, 'id' | 'createdAt'>) => {
     const newAdj: AllowanceAdjustment = {
@@ -333,7 +346,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans selection:bg-teal-500 selection:text-white">
+    <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans selection:bg-brand-500 selection:text-white">
       {/* Floating Mini Toolbar when scrolled down to calendars */}
       <MiniToolbar
         summary={summary}
@@ -345,11 +358,11 @@ export default function App() {
       />
 
       {/* Top Application Header */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
+      <header className="sticky top-0 z-30 bg-surface/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo & App Title */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center shadow-xs">
+            <div className="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-xs">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
@@ -375,16 +388,16 @@ export default function App() {
 
             <button
               onClick={() => setIsAdjustmentsOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200/80 transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200/80 transition-all"
               title="Add carryover or bonus leave"
             >
-              <PlusCircle className="w-4 h-4 text-teal-600" />
+              <PlusCircle className="w-4 h-4 text-brand-600" />
               <span className="hidden sm:inline">Adjustments</span>
             </button>
 
             <button
               onClick={handleExportBackup}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 bg-surface hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all"
               title="Download local JSON backup"
             >
               <Download className="w-4 h-4 text-slate-500" />
@@ -393,7 +406,7 @@ export default function App() {
 
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 shadow-xs transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-strong hover:bg-strong-hover shadow-xs transition-all"
             >
               <Settings className="w-4 h-4" />
               <span>Settings</span>
@@ -438,11 +451,11 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto border-t border-slate-200 bg-white py-4 text-xs text-slate-500">
+      <footer className="mt-auto border-t border-slate-200 bg-surface py-4 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div>
             <span>Vacation Planner • Compressed Hours & Pro-Rata Entitlement Tracker</span>
-            {isLoadingBH && <span className="ml-2 text-teal-600">• Loading bank holidays...</span>}
+            {isLoadingBH && <span className="ml-2 text-brand-600">• Loading bank holidays...</span>}
           </div>
           <div className="flex items-center gap-4">
             <button
@@ -477,6 +490,7 @@ export default function App() {
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         onSaveConfig={handleSaveConfig}
+        onThemeChange={handleThemeChange}
         onExportBackup={handleExportBackup}
         onImportBackup={handleImportBackup}
         onResetFiscalYear={handleResetFiscalYear}

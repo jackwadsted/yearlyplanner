@@ -103,15 +103,15 @@ export const DayEditModal: React.FC<DayEditModalProps> = ({
     {
       type: 'vacation',
       label: 'Vacation',
-      icon: <Palmtree className="w-4 h-4 text-teal-600" />,
-      color: 'border-teal-400 bg-teal-50 text-teal-900',
+      icon: <Palmtree className="w-4 h-4 text-brand-600" />,
+      color: 'border-brand-400 bg-brand-50 text-brand-900',
       desc: 'Deducts from vacation allowance',
     },
     {
       type: 'bank_holiday',
       label: 'Bank Holiday',
-      icon: <Landmark className="w-4 h-4 text-indigo-600" />,
-      color: 'border-indigo-400 bg-indigo-50 text-indigo-900',
+      icon: <Landmark className="w-4 h-4 text-accent-600" />,
+      color: 'border-accent-400 bg-accent-50 text-accent-900',
       desc: 'Deducts from bank holiday allowance',
     },
     {
@@ -138,8 +138,8 @@ export const DayEditModal: React.FC<DayEditModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-200/90 w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs transition-opacity animate-fade-in">
+      <div className="bg-surface rounded-2xl shadow-xl border border-slate-200/90 w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
           <div>
@@ -162,8 +162,8 @@ export const DayEditModal: React.FC<DayEditModalProps> = ({
         <form onSubmit={handleSave} className="p-6 space-y-5 overflow-y-auto">
           {/* Bank Holiday Banner if recognized */}
           {bankHoliday && (
-            <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-900 text-xs">
-              <Sparkles className="w-4 h-4 text-indigo-600 shrink-0" />
+            <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-accent-50 border border-accent-200 text-accent-900 text-xs">
+              <Sparkles className="w-4 h-4 text-accent-600 shrink-0" />
               <div>
                 <span className="font-semibold">UK Public Bank Holiday:</span> {bankHoliday.title}
               </div>
@@ -185,7 +185,7 @@ export const DayEditModal: React.FC<DayEditModalProps> = ({
                     onClick={() => handleTypeSelect(opt.type)}
                     className={`flex items-start gap-2.5 p-3 rounded-xl border text-left transition-all ${
                       active
-                        ? `${opt.color} ring-2 ring-offset-1 ring-teal-500 font-medium shadow-xs`
+                        ? `${opt.color} ring-2 ring-offset-1 ring-brand-500 font-medium shadow-xs`
                         : 'border-slate-200 hover:bg-slate-50 text-slate-700'
                     }`}
                   >
@@ -205,21 +205,21 @@ export const DayEditModal: React.FC<DayEditModalProps> = ({
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-teal-600" />
+                  <Clock className="w-4 h-4 text-brand-600" />
                   <span>Hours Allocated for this Day</span>
                 </label>
                 <div className="flex items-center gap-1 text-xs">
                   <button
                     type="button"
                     onClick={() => handleQuickPresetHours(config.dailyDefaultHours)}
-                    className="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-600 hover:text-teal-600 hover:border-teal-300 transition-colors font-mono text-[11px]"
+                    className="px-2 py-0.5 rounded bg-surface border border-slate-200 text-slate-600 hover:text-brand-600 hover:border-brand-300 transition-colors font-mono text-[11px]"
                   >
                     Full ({config.dailyDefaultHours}h)
                   </button>
                   <button
                     type="button"
                     onClick={() => handleQuickPresetHours(Math.round((config.dailyDefaultHours / 2) * 100) / 100)}
-                    className="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-600 hover:text-teal-600 hover:border-teal-300 transition-colors font-mono text-[11px]"
+                    className="px-2 py-0.5 rounded bg-surface border border-slate-200 text-slate-600 hover:text-brand-600 hover:border-brand-300 transition-colors font-mono text-[11px]"
                   >
                     Half ({Math.round((config.dailyDefaultHours / 2) * 100) / 100}h)
                   </button>
@@ -237,7 +237,7 @@ export const DayEditModal: React.FC<DayEditModalProps> = ({
                     setHours(parseFloat(e.target.value) || 0);
                     setIsCustomHours(true);
                   }}
-                  className="w-32 px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  className="w-32 px-3 py-2 bg-surface border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                 />
                 <span className="text-xs text-slate-500">
                   hours {hours !== config.dailyDefaultHours ? '(custom override)' : '(standard full day)'}
@@ -256,7 +256,7 @@ export const DayEditModal: React.FC<DayEditModalProps> = ({
               placeholder="e.g. Summer Break, Family Event, Overtime Off..."
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full px-3.5 py-2 bg-surface border border-slate-200 rounded-lg text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
 
@@ -285,7 +285,7 @@ export const DayEditModal: React.FC<DayEditModalProps> = ({
               </button>
               <button
                 type="submit"
-                className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg shadow-sm transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-brand-600 hover:brightness-90 rounded-lg shadow-sm transition-colors"
               >
                 <Check className="w-4 h-4" />
                 <span>Save Entry</span>

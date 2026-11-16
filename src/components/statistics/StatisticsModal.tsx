@@ -173,32 +173,32 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
           const y = yOf(val);
           return (
             <g key={frac}>
-              <line x1={PAD.left} y1={y} x2={W - PAD.right} y2={y} stroke="#e5e7eb" strokeWidth="1" />
-              <text x={PAD.left - 4} y={y + 4} textAnchor="end" fontSize="8" fill="#9ca3af">{val}h</text>
+              <line x1={PAD.left} y1={y} x2={W - PAD.right} y2={y} className="stroke-slate-200" strokeWidth="1" />
+              <text x={PAD.left - 4} y={y + 4} textAnchor="end" fontSize="8" className="fill-slate-400">{val}h</text>
             </g>
           );
         })}
 
         {/* Today line */}
         {todayX !== null && (
-          <line x1={todayX} y1={PAD.top} x2={todayX} y2={H - PAD.bottom} stroke="#94a3b8" strokeWidth="1" strokeDasharray="3 3" />
+          <line x1={todayX} y1={PAD.top} x2={todayX} y2={H - PAD.bottom} className="stroke-slate-400" strokeWidth="1" strokeDasharray="3 3" />
         )}
 
         {/* Ideal line */}
-        <path d={idealPath} fill="none" stroke="#c7d2fe" strokeWidth="1.5" strokeDasharray="5 3" />
+        <path d={idealPath} fill="none" className="stroke-accent-200" strokeWidth="1.5" strokeDasharray="5 3" />
 
         {/* Taken area fill */}
         <path
           d={`${takenPath} L${xOf(pts.length - 1)},${yOf(0)} L${xOf(0)},${yOf(0)} Z`}
-          fill="#5eead4"
+          className="fill-brand-300"
           fillOpacity="0.18"
         />
         {/* Taken line */}
-        <path d={takenPath} fill="none" stroke="#0d9488" strokeWidth="2" strokeLinejoin="round" />
+        <path d={takenPath} fill="none" className="stroke-brand-600" strokeWidth="2" strokeLinejoin="round" />
 
         {/* X axis labels */}
         {pts.map((p, i) => (
-          <text key={i} x={xOf(i)} y={H - PAD.bottom + 10} textAnchor="middle" fontSize="8" fill="#9ca3af">
+          <text key={i} x={xOf(i)} y={H - PAD.bottom + 10} textAnchor="middle" fontSize="8" className="fill-slate-400">
             {p.label}
           </text>
         ))}
@@ -210,8 +210,8 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
   const maxMonthHours = Math.max(1, ...leaveHeat.map((m) => m.vacation + m.bankHoliday + m.sickness));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-200/90 w-full max-w-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/40 backdrop-blur-xs">
+      <div className="bg-surface rounded-2xl shadow-xl border border-slate-200/90 w-full max-w-2xl overflow-hidden flex flex-col max-h-[92vh]">
 
         {/* Header */}
         <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70 shrink-0">
@@ -243,22 +243,22 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
                 label: 'Vacation taken',
                 value: `${summary.vacationTakenHours}h`,
                 sub: `${summary.vacationTakenDaysEquivalent}d of ${summary.vacationTotalDaysEquivalent}d`,
-                color: 'bg-teal-50 border-teal-200/70 text-teal-700',
-                val: 'text-teal-900',
+                color: 'bg-brand-50 border-brand-200/70 text-brand-700',
+                val: 'text-brand-900',
               },
               {
                 label: 'Vacation remaining',
                 value: `${summary.vacationRemainingHours}h`,
                 sub: `${summary.vacationRemainingDaysEquivalent}d left`,
-                color: 'bg-teal-50 border-teal-200/70 text-teal-700',
-                val: 'text-teal-900',
+                color: 'bg-brand-50 border-brand-200/70 text-brand-700',
+                val: 'text-brand-900',
               },
               {
                 label: 'Bank holidays',
                 value: `${summary.bankHolidayTakenHours}h`,
                 sub: `${summary.bankHolidayTakenDaysEquivalent}d of ${summary.bankHolidayTotalDaysEquivalent}d`,
-                color: 'bg-indigo-50 border-indigo-200/70 text-indigo-700',
-                val: 'text-indigo-900',
+                color: 'bg-accent-50 border-accent-200/70 text-accent-700',
+                val: 'text-accent-900',
               },
               {
                 label: 'Sickness',
@@ -319,7 +319,7 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
                         : `At current rate you'll exceed your allowance by ${Math.abs(Math.round(projection.surplusByEndH / dailyHours * 10) / 10)}d`}
                     </div>
                   </div>
-                  <div className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-700">
+                  <div className="flex-1 rounded-xl border border-slate-200 bg-surface px-3 py-2.5 text-xs text-slate-700">
                     <div className="font-bold font-mono text-base text-slate-900">
                       {projection.burnRatePerDay}h<span className="text-slate-400 font-normal text-[11px]">/day</span>
                     </div>
@@ -340,19 +340,19 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
                   </div>
                   <div className="w-full bg-slate-200/70 rounded-full h-2.5 overflow-hidden relative">
                     <div
-                      className="bg-teal-500 h-2.5 rounded-full"
+                      className="bg-brand-500 h-2.5 rounded-full"
                       style={{ width: `${Math.min(100, Math.round((projection.vacationTakenToDate / summary.vacationTotalAllowanceHours) * 100))}%` }}
                     />
                     {/* ideal marker */}
                     <div
-                      className="absolute top-0 bottom-0 w-0.5 bg-indigo-400"
+                      className="absolute top-0 bottom-0 w-0.5 bg-accent-400"
                       style={{ left: `${projection.percentThrough}%` }}
                       title="Expected usage if linear"
                     />
                   </div>
                   <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
-                    <span className="text-teal-600">▪ Actual (past)</span>
-                    <span className="text-indigo-400">▪ Expected (linear)</span>
+                    <span className="text-brand-600">▪ Actual (past)</span>
+                    <span className="text-accent-400">▪ Expected (linear)</span>
                   </div>
                   <p className="text-[10px] text-slate-400 mt-1.5">
                     Projection uses your past burn rate only — future planned leave doesn't affect it.
@@ -365,11 +365,11 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
           {/* ── Vacation Burn-down ──────────────────────────────────────────── */}
           <section className="rounded-xl border border-slate-200 bg-slate-50/40 p-4">
             <div className="flex items-center gap-2 mb-1">
-              <TrendingDown className="w-4 h-4 text-teal-600 shrink-0" />
+              <TrendingDown className="w-4 h-4 text-brand-600 shrink-0" />
               <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wide">Vacation Burn-down</h3>
               <span className="ml-auto text-[10px] text-slate-400 flex gap-3">
-                <span className="text-teal-600">▪ Actual</span>
-                <span className="text-indigo-300">▪ Ideal linear</span>
+                <span className="text-brand-600">▪ Actual</span>
+                <span className="text-accent-300">▪ Ideal linear</span>
               </span>
             </div>
             <p className="text-[10px] text-slate-400 mb-2">Cumulative vacation hours taken month-by-month vs ideal linear burn rate</p>
@@ -389,8 +389,8 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
                   <tr>
                     <th className="text-left text-slate-400 font-medium pb-1.5 w-8">Mo.</th>
                     <th className="text-left text-slate-400 font-medium pb-1.5 pl-1">Distribution</th>
-                    <th className="text-right text-teal-600 font-semibold pb-1.5 pr-1">Vac</th>
-                    <th className="text-right text-indigo-600 font-semibold pb-1.5 pr-1">BH</th>
+                    <th className="text-right text-brand-600 font-semibold pb-1.5 pr-1">Vac</th>
+                    <th className="text-right text-accent-600 font-semibold pb-1.5 pr-1">BH</th>
                     <th className="text-right text-amber-600 font-semibold pb-1.5">Sick</th>
                   </tr>
                 </thead>
@@ -407,14 +407,14 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
                           <div className="flex h-3.5 rounded overflow-hidden bg-slate-100 gap-px">
                             {vacW > 0 && (
                               <div
-                                className="bg-teal-400 h-full"
+                                className="bg-brand-400 h-full"
                                 style={{ width: `${vacW}%` }}
                                 title={`Vacation: ${row.vacation}h`}
                               />
                             )}
                             {bhW > 0 && (
                               <div
-                                className="bg-indigo-400 h-full"
+                                className="bg-accent-400 h-full"
                                 style={{ width: `${bhW}%` }}
                                 title={`Bank Holiday: ${row.bankHoliday}h`}
                               />
@@ -428,10 +428,10 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
                             )}
                           </div>
                         </td>
-                        <td className="py-1 pr-1 text-right font-mono text-teal-700 align-middle">
+                        <td className="py-1 pr-1 text-right font-mono text-brand-700 align-middle">
                           {row.vacation > 0 ? `${row.vacation}h` : <span className="text-slate-300">—</span>}
                         </td>
-                        <td className="py-1 pr-1 text-right font-mono text-indigo-700 align-middle">
+                        <td className="py-1 pr-1 text-right font-mono text-accent-700 align-middle">
                           {row.bankHoliday > 0 ? `${row.bankHoliday}h` : <span className="text-slate-300">—</span>}
                         </td>
                         <td className="py-1 text-right font-mono text-amber-700 align-middle">
@@ -444,8 +444,8 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
                 <tfoot>
                   <tr className="border-t-2 border-slate-200">
                     <td className="pt-1.5 text-slate-500 font-semibold" colSpan={2}>Total logged</td>
-                    <td className="pt-1.5 text-right font-mono font-bold text-teal-700">{summary.vacationTakenHours}h</td>
-                    <td className="pt-1.5 text-right font-mono font-bold text-indigo-700 pr-1">{summary.bankHolidayTakenHours}h</td>
+                    <td className="pt-1.5 text-right font-mono font-bold text-brand-700">{summary.vacationTakenHours}h</td>
+                    <td className="pt-1.5 text-right font-mono font-bold text-accent-700 pr-1">{summary.bankHolidayTakenHours}h</td>
                     <td className="pt-1.5 text-right font-mono font-bold text-amber-700">{summary.totalSicknessHours}h</td>
                   </tr>
                 </tfoot>

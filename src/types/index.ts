@@ -17,6 +17,8 @@ export type PaintTool =
 
 export type UKRegion = 'england-and-wales' | 'scotland' | 'northern-ireland';
 
+export type ThemeId = 'default' | 'pink' | 'orange' | 'black' | 'blue' | 'red';
+
 export interface DayRecord {
   date: string; // ISO format: 'YYYY-MM-DD'
   type: DayType;
@@ -43,6 +45,7 @@ export interface UserConfig {
   workingDays: number[]; // 0 = Sun, 1 = Mon, 2 = Tue, 3 = Wed, 4 = Thu, 5 = Fri, 6 = Sat
   dailyDefaultHours: number; // e.g., 8.25
   region: UKRegion;
+  theme: ThemeId;
 }
 
 export interface FiscalYearData {

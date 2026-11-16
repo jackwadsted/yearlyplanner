@@ -12,6 +12,7 @@ export const DEFAULT_CONFIG: UserConfig = {
   workingDays: [1, 2, 3, 4], // Monday, Tuesday, Wednesday, Thursday (Friday, Saturday, Sunday off)
   dailyDefaultHours: 8.25,
   region: 'england-and-wales',
+  theme: 'default',
 };
 
 /**

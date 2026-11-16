@@ -67,28 +67,28 @@ export const FiscalYearCalendar: React.FC<FiscalYearCalendarProps> = ({
       tool: 'select',
       label: 'Inspect / Edit',
       icon: <MousePointerClick className="w-3.5 h-3.5" />,
-      activeClass: 'bg-slate-900 text-white border-slate-900 shadow-sm ring-2 ring-slate-400/40',
-      idleClass: 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50',
+      activeClass: 'bg-strong text-white border-strong shadow-sm ring-2 ring-slate-400/40',
+      idleClass: 'bg-surface text-slate-700 border-slate-200 hover:bg-slate-50',
     },
     {
       tool: 'vacation',
       label: 'Vacation',
       icon: <Palmtree className="w-3.5 h-3.5" />,
-      activeClass: 'bg-teal-600 text-white border-teal-600 shadow-sm ring-2 ring-teal-400/50',
-      idleClass: 'bg-teal-50 text-teal-800 border-teal-200 hover:bg-teal-100/70',
+      activeClass: 'bg-brand-600 text-white border-brand-600 shadow-sm ring-2 ring-brand-400/50',
+      idleClass: 'bg-brand-50 text-brand-800 border-brand-200 hover:bg-brand-100/70',
     },
     {
       tool: 'bank_holiday',
       label: 'Bank Holiday',
       icon: <Landmark className="w-3.5 h-3.5" />,
-      activeClass: 'bg-indigo-600 text-white border-indigo-600 shadow-sm ring-2 ring-indigo-400/50',
-      idleClass: 'bg-indigo-50 text-indigo-800 border-indigo-200 hover:bg-indigo-100/70',
+      activeClass: 'bg-accent-600 text-white border-accent-600 shadow-sm ring-2 ring-accent-400/50',
+      idleClass: 'bg-accent-50 text-accent-800 border-accent-200 hover:bg-accent-100/70',
     },
     {
       tool: 'non_working',
       label: 'Day Off',
       icon: <Coffee className="w-3.5 h-3.5" />,
-      activeClass: 'bg-slate-700 text-white border-slate-700 shadow-sm ring-2 ring-slate-400/40',
+      activeClass: 'bg-strong-soft text-white border-strong-soft shadow-sm ring-2 ring-slate-400/40',
       idleClass: 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200',
     },
     {
@@ -110,31 +110,31 @@ export const FiscalYearCalendar: React.FC<FiscalYearCalendarProps> = ({
       label: 'Clear / Reset',
       icon: <Eraser className="w-3.5 h-3.5 text-rose-600" />,
       activeClass: 'bg-rose-600 text-white border-rose-600 shadow-sm ring-2 ring-rose-400/40',
-      idleClass: 'bg-white text-rose-700 border-rose-200 hover:bg-rose-50',
+      idleClass: 'bg-surface text-rose-700 border-rose-200 hover:bg-rose-50',
     },
   ];
 
   return (
     <div className="space-y-4">
       {/* Calendar Top Control Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 flex flex-col lg:flex-row items-center justify-between gap-4">
+      <div className="bg-surface rounded-2xl border border-slate-200/90 shadow-sm p-4 flex flex-col lg:flex-row items-center justify-between gap-4">
         {/* Year Navigation */}
         <div className="flex items-center gap-3">
           <div className="flex items-center bg-slate-100 rounded-xl p-1 border border-slate-200">
             <button
               onClick={() => onYearChange(selectedYear - 1)}
-              className="p-1.5 rounded-lg hover:bg-white hover:shadow-2xs text-slate-600 hover:text-slate-900 transition-all"
+              className="p-1.5 rounded-lg hover:bg-surface hover:shadow-2xs text-slate-600 hover:text-slate-900 transition-all"
               title="Previous Fiscal Year"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <div className="px-3 font-semibold text-slate-800 text-sm sm:text-base flex items-center gap-2">
-              <CalendarIcon className="w-4 h-4 text-teal-600" />
+              <CalendarIcon className="w-4 h-4 text-brand-600" />
               <span>FY {fyKey}</span>
             </div>
             <button
               onClick={() => onYearChange(selectedYear + 1)}
-              className="p-1.5 rounded-lg hover:bg-white hover:shadow-2xs text-slate-600 hover:text-slate-900 transition-all"
+              className="p-1.5 rounded-lg hover:bg-surface hover:shadow-2xs text-slate-600 hover:text-slate-900 transition-all"
               title="Next Fiscal Year"
             >
               <ChevronRight className="w-5 h-5" />
@@ -179,7 +179,7 @@ export const FiscalYearCalendar: React.FC<FiscalYearCalendarProps> = ({
       {/* Helper notice */}
       <div className="flex items-center justify-between text-xs text-slate-500 px-2">
         <div className="flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+          <Sparkles className="w-3.5 h-3.5 text-brand-600 shrink-0" />
           <span>
             {activePaintTool === 'select'
               ? 'Click any day to edit details/custom hours. Right-click any day to instantly reset.'

@@ -15,6 +15,7 @@ function runValidationTests() {
     workingDays: [1, 2, 3, 4],
     dailyDefaultHours: 8.25,
     region: 'england-and-wales',
+    theme: 'default',
   };
 
   const u1VacHours = calculateVacationEntitlementHours(user1Config);
@@ -33,6 +34,7 @@ function runValidationTests() {
     workingDays: [1, 2, 3, 4],
     dailyDefaultHours: 9.0,
     region: 'england-and-wales',
+    theme: 'default',
   };
 
   const u2VacHours = calculateVacationEntitlementHours(user2Config);

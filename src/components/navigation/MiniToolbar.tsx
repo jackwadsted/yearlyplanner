@@ -40,28 +40,28 @@ export const MiniToolbar: React.FC<MiniToolbarProps> = ({
       tool: 'select',
       label: 'Inspect / Edit',
       icon: <MousePointerClick className="w-4 h-4" />,
-      activeClass: 'bg-slate-900 text-white border-slate-900 shadow-xs ring-2 ring-slate-400/50 scale-105',
+      activeClass: 'bg-strong text-white border-strong shadow-xs ring-2 ring-slate-400/50 scale-105',
       idleClass: 'bg-slate-50 text-slate-700 border-slate-200/90 hover:bg-slate-100 hover:text-slate-900',
     },
     {
       tool: 'vacation',
       label: 'Vacation',
       icon: <Palmtree className="w-4 h-4" />,
-      activeClass: 'bg-teal-600 text-white border-teal-600 shadow-xs ring-2 ring-teal-400/50 scale-105',
-      idleClass: 'bg-teal-50 text-teal-800 border-teal-200/90 hover:bg-teal-100/80',
+      activeClass: 'bg-brand-600 text-white border-brand-600 shadow-xs ring-2 ring-brand-400/50 scale-105',
+      idleClass: 'bg-brand-50 text-brand-800 border-brand-200/90 hover:bg-brand-100/80',
     },
     {
       tool: 'bank_holiday',
       label: 'Bank Holiday',
       icon: <Landmark className="w-4 h-4" />,
-      activeClass: 'bg-indigo-600 text-white border-indigo-600 shadow-xs ring-2 ring-indigo-400/50 scale-105',
-      idleClass: 'bg-indigo-50 text-indigo-800 border-indigo-200/90 hover:bg-indigo-100/80',
+      activeClass: 'bg-accent-600 text-white border-accent-600 shadow-xs ring-2 ring-accent-400/50 scale-105',
+      idleClass: 'bg-accent-50 text-accent-800 border-accent-200/90 hover:bg-accent-100/80',
     },
     {
       tool: 'non_working',
       label: 'Day Off',
       icon: <Coffee className="w-4 h-4" />,
-      activeClass: 'bg-slate-700 text-white border-slate-700 shadow-xs ring-2 ring-slate-400/50 scale-105',
+      activeClass: 'bg-strong-soft text-white border-strong-soft shadow-xs ring-2 ring-slate-400/50 scale-105',
       idleClass: 'bg-slate-100 text-slate-700 border-slate-200/90 hover:bg-slate-200',
     },
     {
@@ -105,7 +105,7 @@ export const MiniToolbar: React.FC<MiniToolbarProps> = ({
       role="toolbar"
       aria-label="Calendar Mini Navigation & Painting Toolbar"
     >
-      <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-lg px-3 sm:px-4 py-2 flex items-center justify-between gap-2 sm:gap-4">
+      <div className="bg-surface/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-lg px-3 sm:px-4 py-2 flex items-center justify-between gap-2 sm:gap-4">
         {/* Streamlined Allowances Summary */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0 overflow-x-auto py-0.5 scrollbar-none">
           {/* Fiscal Year Label */}
@@ -115,21 +115,21 @@ export const MiniToolbar: React.FC<MiniToolbarProps> = ({
 
           {/* Vacation Streamlined Allowance */}
           <div
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-teal-50/80 border border-teal-200/70 text-slate-800 text-xs"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-brand-50/80 border border-brand-200/70 text-slate-800 text-xs"
             title={`Vacation: ${summary.vacationRemainingHours}h remaining of ${summary.vacationTotalAllowanceHours}h total (${vacationPercentUsed}% used)`}
           >
-            <Palmtree className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+            <Palmtree className="w-3.5 h-3.5 text-brand-600 shrink-0" />
             <div className="flex items-baseline gap-1">
-              <span className="font-bold font-mono text-teal-950 text-xs sm:text-sm">
+              <span className="font-bold font-mono text-brand-950 text-xs sm:text-sm">
                 {summary.vacationRemainingHours}h
               </span>
-              <span className="text-[11px] text-teal-700 font-medium hidden sm:inline">
+              <span className="text-[11px] text-brand-700 font-medium hidden sm:inline">
                 ({summary.vacationRemainingDaysEquivalent}d) left
               </span>
             </div>
-            <div className="hidden md:block w-12 bg-teal-200/60 rounded-full h-1.5 overflow-hidden ml-1">
+            <div className="hidden md:block w-12 bg-brand-200/60 rounded-full h-1.5 overflow-hidden ml-1">
               <div
-                className="bg-teal-600 h-1.5 rounded-full"
+                className="bg-brand-600 h-1.5 rounded-full"
                 style={{ width: `${vacationPercentUsed}%` }}
               />
             </div>
@@ -137,21 +137,21 @@ export const MiniToolbar: React.FC<MiniToolbarProps> = ({
 
           {/* Bank Holiday Streamlined Allowance */}
           <div
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-indigo-50/80 border border-indigo-200/70 text-slate-800 text-xs"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-accent-50/80 border border-accent-200/70 text-slate-800 text-xs"
             title={`Bank Holidays: ${summary.bankHolidayRemainingHours}h remaining of ${summary.bankHolidayTotalAllowanceHours}h total (${bankHolidayPercentUsed}% used)`}
           >
-            <Landmark className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+            <Landmark className="w-3.5 h-3.5 text-accent-600 shrink-0" />
             <div className="flex items-baseline gap-1">
-              <span className="font-bold font-mono text-indigo-950 text-xs sm:text-sm">
+              <span className="font-bold font-mono text-accent-950 text-xs sm:text-sm">
                 {summary.bankHolidayRemainingHours}h
               </span>
-              <span className="text-[11px] text-indigo-700 font-medium hidden sm:inline">
+              <span className="text-[11px] text-accent-700 font-medium hidden sm:inline">
                 ({summary.bankHolidayRemainingDaysEquivalent}d) left
               </span>
             </div>
-            <div className="hidden md:block w-12 bg-indigo-200/60 rounded-full h-1.5 overflow-hidden ml-1">
+            <div className="hidden md:block w-12 bg-accent-200/60 rounded-full h-1.5 overflow-hidden ml-1">
               <div
-                className="bg-indigo-600 h-1.5 rounded-full"
+                className="bg-accent-600 h-1.5 rounded-full"
                 style={{ width: `${bankHolidayPercentUsed}%` }}
               />
             </div>
@@ -172,7 +172,7 @@ export const MiniToolbar: React.FC<MiniToolbarProps> = ({
           {onOpenAdjustments && (
             <button
               onClick={onOpenAdjustments}
-              className="hidden lg:flex items-center gap-1 p-1.5 text-slate-500 hover:text-teal-700 hover:bg-slate-100 rounded-lg transition-colors"
+              className="hidden lg:flex items-center gap-1 p-1.5 text-slate-500 hover:text-brand-700 hover:bg-slate-100 rounded-lg transition-colors"
               title="Add carryover or bonus leave"
             >
               <PlusCircle className="w-3.5 h-3.5" />

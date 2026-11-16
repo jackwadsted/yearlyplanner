@@ -30,14 +30,14 @@ export const LeaveList: React.FC<LeaveListProps> = ({
     switch (type) {
       case 'vacation':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-teal-50 text-teal-700 border border-teal-200">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-50 text-brand-700 border border-brand-200">
             <Palmtree className="w-3 h-3" />
             <span>Vacation</span>
           </span>
         );
       case 'bank_holiday':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-accent-50 text-accent-700 border border-accent-200">
             <Landmark className="w-3 h-3" />
             <span>Bank Holiday</span>
           </span>
@@ -60,14 +60,14 @@ export const LeaveList: React.FC<LeaveListProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+    <div className="bg-surface rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full px-5 py-3.5 flex items-center justify-between text-left hover:bg-slate-50/80 transition-colors"
       >
         <div className="flex items-center gap-2.5">
-          <Calendar className="w-4 h-4 text-teal-600" />
+          <Calendar className="w-4 h-4 text-brand-600" />
           <h2 className="text-sm font-bold text-slate-800">
             Logged Leave & Absences
           </h2>
@@ -104,7 +104,7 @@ export const LeaveList: React.FC<LeaveListProps> = ({
                     onClick={() => setFilterType(t)}
                     className={`px-2.5 py-1 rounded-lg capitalize transition-colors ${
                       filterType === t
-                        ? 'bg-slate-800 text-white font-medium'
+                        ? 'bg-strong text-white font-medium'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
@@ -148,7 +148,7 @@ export const LeaveList: React.FC<LeaveListProps> = ({
                           <td className="py-2.5 px-3 text-right space-x-1">
                             <button
                               onClick={() => onEditDate(r.date)}
-                              className="p-1 rounded text-slate-400 hover:text-teal-600 hover:bg-teal-50 transition-colors"
+                              className="p-1 rounded text-slate-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
                               title="Edit entry"
                             >
                               <Edit3 className="w-3.5 h-3.5" />

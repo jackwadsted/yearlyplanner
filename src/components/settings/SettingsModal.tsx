@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { UserConfig, UKRegion } from '../../types';
+import { UserConfig, UKRegion, ThemeId } from '../../types';
+import { THEMES } from '../../themes';
 import {
   X,
   Settings,
@@ -17,6 +18,7 @@ interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSaveConfig: (config: UserConfig) => void;
+  onThemeChange: (theme: ThemeId) => void;
   onExportBackup: () => void;
   onImportBackup: (file: File) => void;
   onResetFiscalYear: () => void;
@@ -37,6 +39,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
   onSaveConfig,
+  onThemeChange,
   onExportBackup,
   onImportBackup,
   onResetFiscalYear,
@@ -102,6 +105,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       workingDays,
       dailyDefaultHours: Number(dailyDefaultHours) || 8.25,
       region,
+      theme: config.theme,
     });
     onClose();
   };
@@ -119,12 +123,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const previewBankHolidayHours = Math.round(((fullTimeBankHolidays * weeklyHours) / 5) * 100) / 100;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-200/90 w-full max-w-xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs transition-opacity animate-fade-in">
+      <div className="bg-surface rounded-2xl shadow-xl border border-slate-200/90 w-full max-w-xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
           <div className="flex items-center gap-2 text-slate-800">
-            <div className="p-2 rounded-xl bg-teal-50 border border-teal-200/60 text-teal-600">
+            <div className="p-2 rounded-xl bg-brand-50 border border-brand-200/60 text-brand-600">
               <Settings className="w-5 h-5" />
             </div>
             <div>
@@ -146,7 +150,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             onClick={() => setActiveTab('profile')}
             className={`pb-2.5 px-3 border-b-2 transition-colors ${
               activeTab === 'profile'
-                ? 'border-teal-600 text-teal-700'
+                ? 'border-brand-600 text-brand-700'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -156,7 +160,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             onClick={() => setActiveTab('data')}
             className={`pb-2.5 px-3 border-b-2 transition-colors ${
               activeTab === 'data'
-                ? 'border-teal-600 text-teal-700'
+                ? 'border-brand-600 text-brand-700'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -167,6 +171,42 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Tab 1: Profile & Schedule */}
         {activeTab === 'profile' && (
           <form onSubmit={handleSave} className="p-6 space-y-5 overflow-y-auto">
+            {/* Theme Picker (applies immediately) */}
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                Theme
+              </label>
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                {THEMES.map((t) => {
+                  const isActive = config.theme === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => onThemeChange(t.id)}
+                      aria-pressed={isActive}
+                      className={`p-2 rounded-xl border text-center transition-all ${
+                        isActive
+                          ? 'border-brand-500 ring-2 ring-brand-500/40 bg-brand-50'
+                          : 'border-slate-200 hover:border-brand-400 bg-slate-50/60'
+                      }`}
+                    >
+                      <div className="flex justify-center -space-x-1.5 mb-1.5">
+                        {t.swatches.map((c, i) => (
+                          <span
+                            key={i}
+                            className="w-4 h-4 rounded-full border border-slate-300"
+                            style={{ backgroundColor: c }}
+                          />
+                        ))}
+                      </div>
+                      <div className="text-[11px] font-semibold text-slate-800">{t.label}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Quick Presets */}
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
@@ -183,7 +223,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       dailyDefaultHours: 8.25,
                     })
                   }
-                  className="p-2.5 rounded-xl border border-slate-200 hover:border-teal-400 bg-slate-50/60 hover:bg-teal-50/50 text-left transition-all"
+                  className="p-2.5 rounded-xl border border-slate-200 hover:border-brand-400 bg-slate-50/60 hover:bg-brand-50/50 text-left transition-all"
                 >
                   <div className="text-xs font-semibold text-slate-800">33h (Mon-Thu)</div>
                   <div className="text-[10px] text-slate-500">8.25h/day, Fri Off</div>
@@ -199,7 +239,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       dailyDefaultHours: 8.25,
                     })
                   }
-                  className="p-2.5 rounded-xl border border-slate-200 hover:border-teal-400 bg-slate-50/60 hover:bg-teal-50/50 text-left transition-all"
+                  className="p-2.5 rounded-xl border border-slate-200 hover:border-brand-400 bg-slate-50/60 hover:bg-brand-50/50 text-left transition-all"
                 >
                   <div className="text-xs font-semibold text-slate-800">33h (Tue-Fri)</div>
                   <div className="text-[10px] text-slate-500">8.25h/day, Mon Off</div>
@@ -215,7 +255,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       dailyDefaultHours: 9.0,
                     })
                   }
-                  className="p-2.5 rounded-xl border border-slate-200 hover:border-teal-400 bg-slate-50/60 hover:bg-teal-50/50 text-left transition-all"
+                  className="p-2.5 rounded-xl border border-slate-200 hover:border-brand-400 bg-slate-50/60 hover:bg-brand-50/50 text-left transition-all"
                 >
                   <div className="text-xs font-semibold text-slate-800">36h / 40h Base</div>
                   <div className="text-[10px] text-slate-500">4 days @ 9.0h/day</div>
@@ -233,7 +273,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. My Compressed Schedule"
-                className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full px-3 py-2 bg-surface border border-slate-300 rounded-lg text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
 
@@ -251,7 +291,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     max="60"
                     value={weeklyHours}
                     onChange={(e) => handleWeeklyHoursChange(parseFloat(e.target.value) || 0)}
-                    className="w-full pl-3 pr-24 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full pl-3 pr-24 py-2 bg-surface border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                   />
                   <span className="absolute right-11 top-2.5 text-xs text-slate-400 font-mono pointer-events-none">hrs/wk</span>
                 </div>
@@ -269,7 +309,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     max="60"
                     value={fullTimeWeeklyHours}
                     onChange={(e) => setFullTimeWeeklyHours(parseFloat(e.target.value) || 0)}
-                    className="w-full pl-3 pr-24 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full pl-3 pr-24 py-2 bg-surface border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                   />
                   <span className="absolute right-11 top-2.5 text-xs text-slate-400 font-mono pointer-events-none">hrs/wk</span>
                 </div>
@@ -291,7 +331,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       onClick={() => toggleWorkingDay(w.dayNum)}
                       className={`py-2 px-1 rounded-xl border text-xs font-semibold transition-all ${
                         isActive
-                          ? 'bg-teal-600 text-white border-teal-600 shadow-xs ring-1 ring-teal-500'
+                          ? 'bg-brand-600 text-white border-brand-600 shadow-xs ring-1 ring-brand-500'
                           : 'bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100 hover:text-slate-700'
                       }`}
                       title={`${w.full}: ${isActive ? 'Working Day' : 'Day Off'}`}
@@ -308,7 +348,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-teal-600" />
+                  <Clock className="w-3.5 h-3.5 text-brand-600" />
                   <span>Standard Shift Daily Hours</span>
                 </label>
                 <div className="relative">
@@ -319,7 +359,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     max="24"
                     value={dailyDefaultHours}
                     onChange={(e) => setDailyDefaultHours(parseFloat(e.target.value) || 0)}
-                    className="w-full pl-3 pr-24 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full pl-3 pr-24 py-2 bg-surface border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                   />
                   <span className="absolute right-11 top-2.5 text-xs text-slate-400 font-mono pointer-events-none">hrs/day</span>
                 </div>
@@ -327,13 +367,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-teal-600" />
+                  <Calendar className="w-3.5 h-3.5 text-brand-600" />
                   <span>UK Bank Holiday Region</span>
                 </label>
                 <select
                   value={region}
                   onChange={(e) => setRegion(e.target.value as UKRegion)}
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full px-3 py-2 bg-surface border border-slate-300 rounded-lg text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 >
                   <option value="england-and-wales">England & Wales</option>
                   <option value="scotland">Scotland</option>
@@ -355,7 +395,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   max="50"
                   value={fullTimeVacationDays}
                   onChange={(e) => setFullTimeVacationDays(parseFloat(e.target.value) || 0)}
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full px-3 py-2 bg-surface border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
 
@@ -370,22 +410,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   max="20"
                   value={fullTimeBankHolidays}
                   onChange={(e) => setFullTimeBankHolidays(parseFloat(e.target.value) || 0)}
-                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full px-3 py-2 bg-surface border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
             </div>
 
             {/* Live Calculation Preview Banner */}
-            <div className="p-3.5 rounded-xl bg-teal-50/80 border border-teal-200/80 text-xs text-teal-900 space-y-1">
-              <div className="flex items-center gap-1.5 font-semibold text-teal-800">
-                <Sparkles className="w-4 h-4 text-teal-600" />
+            <div className="p-3.5 rounded-xl bg-brand-50/80 border border-brand-200/80 text-xs text-brand-900 space-y-1">
+              <div className="flex items-center gap-1.5 font-semibold text-brand-800">
+                <Sparkles className="w-4 h-4 text-brand-600" />
                 <span>Calculated Pro-Rata Entitlements</span>
               </div>
-              <div className="font-mono text-[11px] text-teal-900/90 pt-1">
-                • Vacation: {fullTimeVacationDays} days × {weeklyHours}h / 5 = <strong className="text-teal-950 font-bold">{previewVacationHours} hours</strong> ({Math.round((previewVacationHours / dailyDefaultHours) * 10) / 10} days)
+              <div className="font-mono text-[11px] text-brand-900/90 pt-1">
+                • Vacation: {fullTimeVacationDays} days × {weeklyHours}h / 5 = <strong className="text-brand-950 font-bold">{previewVacationHours} hours</strong> ({Math.round((previewVacationHours / dailyDefaultHours) * 10) / 10} days)
               </div>
-              <div className="font-mono text-[11px] text-teal-900/90">
-                • Bank Holidays: {fullTimeBankHolidays} days × {weeklyHours}h / 5 = <strong className="text-teal-950 font-bold">{previewBankHolidayHours} hours</strong> ({Math.round((previewBankHolidayHours / dailyDefaultHours) * 10) / 10} days)
+              <div className="font-mono text-[11px] text-brand-900/90">
+                • Bank Holidays: {fullTimeBankHolidays} days × {weeklyHours}h / 5 = <strong className="text-brand-950 font-bold">{previewBankHolidayHours} hours</strong> ({Math.round((previewBankHolidayHours / dailyDefaultHours) * 10) / 10} days)
               </div>
             </div>
 
@@ -400,7 +440,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </button>
               <button
                 type="submit"
-                className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg shadow-sm transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-brand-600 hover:brightness-90 rounded-lg shadow-sm transition-colors"
               >
                 <Check className="w-4 h-4" />
                 <span>Save Configuration</span>
@@ -419,7 +459,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </p>
               <button
                 onClick={onExportBackup}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:brightness-90 text-white font-semibold transition-colors"
               >
                 <Download className="w-4 h-4" />
                 <span>Download Backup File (.json)</span>
@@ -431,8 +471,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <p className="text-slate-600 leading-relaxed">
                 Select a previously saved backup file to restore your schedule.
               </p>
-              <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-300 hover:border-slate-400 text-slate-700 font-semibold cursor-pointer transition-colors">
-                <Upload className="w-4 h-4 text-teal-600" />
+              <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface border border-slate-300 hover:border-slate-400 text-slate-700 font-semibold cursor-pointer transition-colors">
+                <Upload className="w-4 h-4 text-brand-600" />
                 <span>Select JSON File to Restore</span>
                 <input
                   type="file"
@@ -459,7 +499,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     onClose();
                   }
                 }}
-                className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-rose-600 hover:brightness-90 text-white font-semibold text-xs transition-colors"
               >
                 Reset Year Records
               </button>
