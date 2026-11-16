@@ -97,10 +97,10 @@ export const MiniToolbar: React.FC<MiniToolbarProps> = ({
 
   return (
     <div
-      className={`fixed top-3 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl transition-all duration-300 ease-out transform ${
+      className={`fixed top-18 sm:top-20 left-1/2 -translate-x-1/2 z-20 w-[95%] max-w-5xl transition-all duration-300 ease-out transform ${
         isVisible
           ? 'translate-y-0 opacity-100 pointer-events-auto'
-          : '-translate-y-12 opacity-0 pointer-events-none'
+          : '-translate-y-4 opacity-0 pointer-events-none'
       }`}
       role="toolbar"
       aria-label="Calendar Mini Navigation & Painting Toolbar"

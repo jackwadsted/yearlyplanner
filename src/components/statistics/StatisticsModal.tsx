@@ -104,18 +104,22 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
       )
     );
     const fractionElapsed = elapsedDays / totalFYDays;
-
-    const vacationTaken = summary.vacationTakenHours;
     const totalAllowance = summary.vacationTotalAllowanceHours;
 
     if (fractionElapsed <= 0) {
       return { status: 'not_started' as const, projectedRemaining: totalAllowance, surplusByEndH: 0, percentThrough: 0 };
     }
 
-    // Burn rate hours/day
-    const burnRatePerDay = vacationTaken / elapsedDays;
+    // Only count vacation days that have already passed — future planned days
+    // must not inflate the burn rate.
+    const vacationTakenToDate = records
+      .filter((r) => r.type === 'vacation' && r.date <= today && isInFiscalYear(r.date, selectedYear))
+      .reduce((s, r) => s + r.hours, 0);
+
+    // Burn rate hours/day based only on days elapsed so far
+    const burnRatePerDay = elapsedDays > 0 ? vacationTakenToDate / elapsedDays : 0;
     const daysLeft = totalFYDays - elapsedDays;
-    const projectedTotalByYearEnd = vacationTaken + burnRatePerDay * daysLeft;
+    const projectedTotalByYearEnd = vacationTakenToDate + burnRatePerDay * daysLeft;
     const projectedRemaining = Math.round((totalAllowance - projectedTotalByYearEnd) * 10) / 10;
 
     return {
@@ -126,8 +130,9 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
       burnRatePerDay: Math.round(burnRatePerDay * 100) / 100,
       elapsedDays,
       daysLeft,
+      vacationTakenToDate: Math.round(vacationTakenToDate * 10) / 10,
     };
-  }, [summary, selectedYear]);
+  }, [records, summary.vacationTotalAllowanceHours, selectedYear]);
 
   // ── Summary stats ──────────────────────────────────────────────────────────
   const totalLeaveLogged = Math.round(
@@ -324,19 +329,19 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
                   </div>
                 </div>
 
-                {/* Taken vs ideal bar */}
+                {/* Taken vs ideal bar — past days only */}
                 <div>
                   <div className="flex justify-between text-[10px] text-slate-500 mb-1">
-                    <span>Taken so far</span>
+                    <span>Used to date <span className="text-slate-400">(past days only)</span></span>
                     <span>
-                      {summary.vacationTakenHours}h taken · {Math.round((summary.vacationTakenHours / summary.vacationTotalAllowanceHours) * 100)}% used
+                      {projection.vacationTakenToDate}h used · {Math.round((projection.vacationTakenToDate / summary.vacationTotalAllowanceHours) * 100)}% used
                       {' '}vs {projection.percentThrough}% of year elapsed
                     </span>
                   </div>
                   <div className="w-full bg-slate-200/70 rounded-full h-2.5 overflow-hidden relative">
                     <div
                       className="bg-teal-500 h-2.5 rounded-full"
-                      style={{ width: `${Math.min(100, Math.round((summary.vacationTakenHours / summary.vacationTotalAllowanceHours) * 100))}%` }}
+                      style={{ width: `${Math.min(100, Math.round((projection.vacationTakenToDate / summary.vacationTotalAllowanceHours) * 100))}%` }}
                     />
                     {/* ideal marker */}
                     <div
@@ -346,9 +351,12 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
                     />
                   </div>
                   <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
-                    <span className="text-teal-600">▪ Actual</span>
+                    <span className="text-teal-600">▪ Actual (past)</span>
                     <span className="text-indigo-400">▪ Expected (linear)</span>
                   </div>
+                  <p className="text-[10px] text-slate-400 mt-1.5">
+                    Projection uses your past burn rate only — future planned leave doesn't affect it.
+                  </p>
                 </div>
               </div>
             )}

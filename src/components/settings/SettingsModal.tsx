@@ -251,9 +251,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     max="60"
                     value={weeklyHours}
                     onChange={(e) => handleWeeklyHoursChange(parseFloat(e.target.value) || 0)}
-                    className="w-full pl-3 pr-20 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full pl-3 pr-24 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                   />
-                  <span className="absolute right-8 top-2.5 text-xs text-slate-400 font-mono pointer-events-none">hrs/wk</span>
+                  <span className="absolute right-11 top-2.5 text-xs text-slate-400 font-mono pointer-events-none">hrs/wk</span>
                 </div>
               </div>
 
@@ -269,9 +269,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     max="60"
                     value={fullTimeWeeklyHours}
                     onChange={(e) => setFullTimeWeeklyHours(parseFloat(e.target.value) || 0)}
-                    className="w-full pl-3 pr-20 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full pl-3 pr-24 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                   />
-                  <span className="absolute right-8 top-2.5 text-xs text-slate-400 font-mono pointer-events-none">hrs/wk</span>
+                  <span className="absolute right-11 top-2.5 text-xs text-slate-400 font-mono pointer-events-none">hrs/wk</span>
                 </div>
               </div>
             </div>
@@ -319,9 +319,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     max="24"
                     value={dailyDefaultHours}
                     onChange={(e) => setDailyDefaultHours(parseFloat(e.target.value) || 0)}
-                    className="w-full pl-3 pr-20 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full pl-3 pr-24 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                   />
-                  <span className="absolute right-8 top-2.5 text-xs text-slate-400 font-mono pointer-events-none">hrs/day</span>
+                  <span className="absolute right-11 top-2.5 text-xs text-slate-400 font-mono pointer-events-none">hrs/day</span>
                 </div>
               </div>
 
