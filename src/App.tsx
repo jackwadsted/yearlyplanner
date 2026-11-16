@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   loadAppState,
   saveAppState,
@@ -15,7 +15,9 @@ import { AllowanceDashboard } from './components/dashboard/AllowanceDashboard';
 import { LeaveList } from './components/dashboard/LeaveList';
 import { SettingsModal } from './components/settings/SettingsModal';
 import { AllowanceOverridesModal } from './components/settings/AllowanceOverridesModal';
-import { Calendar, Settings, PlusCircle, Download, RotateCcw } from 'lucide-react';
+import { MiniToolbar } from './components/navigation/MiniToolbar';
+import { StatisticsModal } from './components/statistics/StatisticsModal';
+import { Calendar, Settings, PlusCircle, Download, RotateCcw, BarChart2 } from 'lucide-react';
 
 export default function App() {
   const [appState, setAppState] = useState<AppState>(() => loadAppState());
@@ -30,6 +32,11 @@ export default function App() {
   const [isDayModalOpen, setIsDayModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAdjustmentsOpen, setIsAdjustmentsOpen] = useState(false);
+  const [isStatisticsOpen, setIsStatisticsOpen] = useState(false);
+
+  // Scroll detection for mini floating toolbar
+  const [showMiniToolbar, setShowMiniToolbar] = useState(false);
+  const calendarSectionRef = useRef<HTMLDivElement>(null);
 
   // Current fiscal year key
   const fyKey = useMemo(() => getFiscalYearKey(appState.selectedYear), [appState.selectedYear]);
@@ -49,6 +56,27 @@ export default function App() {
   useEffect(() => {
     saveAppState(appState);
   }, [appState]);
+
+  // Handle scroll detection for calendar mini toolbar
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!calendarSectionRef.current) return;
+      const rect = calendarSectionRef.current.getBoundingClientRect();
+      // Show when calendar starts occupying top viewport (dashboard is scrolled past)
+      setShowMiniToolbar(rect.top <= 80);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  const handleScrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Fetch UK Bank Holidays for selected region
   useEffect(() => {
@@ -306,6 +334,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans selection:bg-teal-500 selection:text-white">
+      {/* Floating Mini Toolbar when scrolled down to calendars */}
+      <MiniToolbar
+        summary={summary}
+        activePaintTool={paintTool}
+        onSelectPaintTool={handleSelectPaintTool}
+        onOpenAdjustments={() => setIsAdjustmentsOpen(true)}
+        onScrollToTop={handleScrollToTop}
+        isVisible={showMiniToolbar}
+      />
+
       {/* Top Application Header */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -326,6 +364,15 @@ export default function App() {
 
           {/* Quick Header Actions */}
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsStatisticsOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200/80 transition-all"
+              title="View leave statistics and projections"
+            >
+              <BarChart2 className="w-4 h-4 text-violet-600" />
+              <span className="hidden sm:inline">Statistics</span>
+            </button>
+
             <button
               onClick={() => setIsAdjustmentsOpen(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200/80 transition-all"
@@ -373,19 +420,21 @@ export default function App() {
         />
 
         {/* 13-Month Fiscal Year Calendar (3 Months Wide) */}
-        <FiscalYearCalendar
-          selectedYear={appState.selectedYear}
-          onYearChange={handleYearChange}
-          dayRecords={currentFYData.dayRecords}
-          bankHolidays={fyBankHolidays}
-          config={appState.config}
-          selectedDate={selectedDate || undefined}
-          activePaintTool={paintTool}
-          onSelectPaintTool={handleSelectPaintTool}
-          onSelectDate={handleSelectDate}
-          onRightClickDate={handleRightClickDate}
-          onDoubleClickDate={handleDoubleClickDate}
-        />
+        <div ref={calendarSectionRef}>
+          <FiscalYearCalendar
+            selectedYear={appState.selectedYear}
+            onYearChange={handleYearChange}
+            dayRecords={currentFYData.dayRecords}
+            bankHolidays={fyBankHolidays}
+            config={appState.config}
+            selectedDate={selectedDate || undefined}
+            activePaintTool={paintTool}
+            onSelectPaintTool={handleSelectPaintTool}
+            onSelectDate={handleSelectDate}
+            onRightClickDate={handleRightClickDate}
+            onDoubleClickDate={handleDoubleClickDate}
+          />
+        </div>
       </main>
 
       {/* Footer */}
@@ -431,6 +480,16 @@ export default function App() {
         onExportBackup={handleExportBackup}
         onImportBackup={handleImportBackup}
         onResetFiscalYear={handleResetFiscalYear}
+      />
+
+      {/* Statistics Modal */}
+      <StatisticsModal
+        isOpen={isStatisticsOpen}
+        onClose={() => setIsStatisticsOpen(false)}
+        summary={summary}
+        fyData={currentFYData}
+        config={appState.config}
+        selectedYear={appState.selectedYear}
       />
 
       {/* Allowance Overrides Modal */}
