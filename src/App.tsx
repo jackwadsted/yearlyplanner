@@ -17,7 +17,8 @@ import { SettingsModal } from './components/settings/SettingsModal';
 import { AllowanceOverridesModal } from './components/settings/AllowanceOverridesModal';
 import { MiniToolbar } from './components/navigation/MiniToolbar';
 import { StatisticsModal } from './components/statistics/StatisticsModal';
-import { Calendar, Settings, PlusCircle, Download, RotateCcw, BarChart2 } from 'lucide-react';
+import { SuggestionsModal } from './components/suggestions/SuggestionsModal';
+import { Calendar, Settings, PlusCircle, Download, RotateCcw, BarChart2, Lightbulb } from 'lucide-react';
 
 export default function App() {
   const [appState, setAppState] = useState<AppState>(() => loadAppState());
@@ -33,6 +34,7 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAdjustmentsOpen, setIsAdjustmentsOpen] = useState(false);
   const [isStatisticsOpen, setIsStatisticsOpen] = useState(false);
+  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
 
   // Scroll detection for mini floating toolbar
   const [showMiniToolbar, setShowMiniToolbar] = useState(false);
@@ -217,6 +219,17 @@ export default function App() {
     });
   };
 
+  // Book all days of a suggested break as vacation
+  const handleApplySuggestion = (dates: string[]) => {
+    for (const date of dates) {
+      handleSaveDayRecord({
+        date,
+        type: 'vacation',
+        hours: appState.config.dailyDefaultHours,
+      });
+    }
+  };
+
   // Right-click on date to instantly reset
   const handleRightClickDate = (dateStr: string) => {
     handleDeleteDayRecord(dateStr);
@@ -378,6 +391,15 @@ export default function App() {
           {/* Quick Header Actions */}
           <div className="flex items-center gap-2">
             <button
+              onClick={() => setIsSuggestionsOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 transition-all"
+              title="Suggest the best times to take time off"
+            >
+              <Lightbulb className="w-4 h-4 text-amber-600" />
+              <span className="hidden sm:inline">Suggest</span>
+            </button>
+
+            <button
               onClick={() => setIsStatisticsOpen(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200/80 transition-all"
               title="View leave statistics and projections"
@@ -504,6 +526,18 @@ export default function App() {
         fyData={currentFYData}
         config={appState.config}
         selectedYear={appState.selectedYear}
+      />
+
+      {/* Suggestions Modal */}
+      <SuggestionsModal
+        isOpen={isSuggestionsOpen}
+        onClose={() => setIsSuggestionsOpen(false)}
+        config={appState.config}
+        selectedYear={appState.selectedYear}
+        dayRecords={currentFYData.dayRecords}
+        bankHolidays={fyBankHolidays}
+        remainingVacationHours={summary.vacationRemainingHours}
+        onApplySuggestion={handleApplySuggestion}
       />
 
       {/* Allowance Overrides Modal */}
