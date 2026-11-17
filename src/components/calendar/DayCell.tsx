@@ -13,6 +13,8 @@ interface DayCellProps {
   onSelect: (dateStr: string) => void;
   onRightClick?: (dateStr: string) => void;
   onDoubleClick?: (dateStr: string) => void;
+  onMouseDown?: (dateStr: string) => void;
+  onMouseEnter?: (dateStr: string) => void;
 }
 
 export const DayCell: React.FC<DayCellProps> = ({
@@ -25,6 +27,8 @@ export const DayCell: React.FC<DayCellProps> = ({
   onSelect,
   onRightClick,
   onDoubleClick,
+  onMouseDown,
+  onMouseEnter,
 }) => {
   const { dateStr, dayNumber, isInCurrentMonth, isInFiscalYear, dayOfWeek } = day;
 
@@ -99,6 +103,19 @@ export const DayCell: React.FC<DayCellProps> = ({
     }
   };
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return; // Left click only
+    if (isInFiscalYear && onMouseDown) {
+      onMouseDown(dateStr);
+    }
+  };
+
+  const handleMouseEnter = () => {
+    if (isInFiscalYear && onMouseEnter) {
+      onMouseEnter(dateStr);
+    }
+  };
+
   const getTooltip = () => {
     let base = bankHoliday
       ? `UK Bank Holiday: ${bankHoliday.title}`
@@ -123,6 +140,8 @@ export const DayCell: React.FC<DayCellProps> = ({
       onClick={() => isInFiscalYear && onSelect(dateStr)}
       onContextMenu={handleContextMenu}
       onDoubleClick={() => isInFiscalYear && onDoubleClick && onDoubleClick(dateStr)}
+      onMouseDown={handleMouseDown}
+      onMouseEnter={handleMouseEnter}
       className={`relative h-14 sm:h-16 p-1 sm:p-1.5 border rounded-md transition-all cursor-pointer flex flex-col justify-between select-none ${bgClass} ${
         !isInFiscalYear ? 'cursor-not-allowed' : ''
       }`}

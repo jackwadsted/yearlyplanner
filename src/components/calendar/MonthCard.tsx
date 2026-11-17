@@ -13,6 +13,8 @@ interface MonthCardProps {
   onSelectDate: (dateStr: string) => void;
   onRightClickDate?: (dateStr: string) => void;
   onDoubleClickDate?: (dateStr: string) => void;
+  onMouseDownDate?: (dateStr: string) => void;
+  onMouseEnterDate?: (dateStr: string) => void;
 }
 
 const WEEKDAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -27,6 +29,8 @@ export const MonthCard: React.FC<MonthCardProps> = ({
   onSelectDate,
   onRightClickDate,
   onDoubleClickDate,
+  onMouseDownDate,
+  onMouseEnterDate,
 }) => {
   const { name, days } = monthInfo;
 
@@ -105,6 +109,8 @@ export const MonthCard: React.FC<MonthCardProps> = ({
             onSelect={onSelectDate}
             onRightClick={onRightClickDate}
             onDoubleClick={onDoubleClickDate}
+            onMouseDown={onMouseDownDate}
+            onMouseEnter={onMouseEnterDate}
           />
         ))}
       </div>

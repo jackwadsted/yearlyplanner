@@ -1,12 +1,15 @@
 import React from 'react';
-import { AllowanceSummary, UserConfig } from '../../types';
+import { AllowanceSummary, UserConfig, DayRecord } from '../../types';
 import { Palmtree, Landmark, Clock, CalendarDays, PlusCircle, AlertCircle, Sparkles } from 'lucide-react';
+import { analyzeBurnout } from '../../utils/burnout';
 
 interface AllowanceDashboardProps {
   summary: AllowanceSummary;
   config: UserConfig;
   onOpenAdjustments: () => void;
   onOpenSettings: () => void;
+  dayRecords: Record<string, DayRecord>;
+  selectedYear: number;
 }
 
 export const AllowanceDashboard: React.FC<AllowanceDashboardProps> = ({
@@ -14,7 +17,10 @@ export const AllowanceDashboard: React.FC<AllowanceDashboardProps> = ({
   config,
   onOpenAdjustments,
   onOpenSettings,
+  dayRecords,
+  selectedYear,
 }) => {
+  const burnout = analyzeBurnout(selectedYear, config, dayRecords);
   const vacationPercentUsed = summary.vacationTotalAllowanceHours > 0
     ? Math.min(100, Math.round((summary.vacationTakenHours / summary.vacationTotalAllowanceHours) * 100))
     : 0;
@@ -61,6 +67,21 @@ export const AllowanceDashboard: React.FC<AllowanceDashboardProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Burnout Risk Banner */}
+      {burnout.isBurnedOut && (
+        <div className="bg-amber-50 border border-amber-200/90 rounded-2xl p-4 flex items-start gap-3 shadow-2xs">
+          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <h4 className="font-bold text-amber-900 text-sm">
+              Burnout Risk & Wellness Advisory
+            </h4>
+            <p className="text-xs text-amber-800 leading-relaxed">
+              {burnout.message} {burnout.recommendation}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Main Metric Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

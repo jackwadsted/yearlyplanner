@@ -29,6 +29,8 @@ interface FiscalYearCalendarProps {
   onSelectDate: (dateStr: string) => void;
   onRightClickDate: (dateStr: string) => void;
   onDoubleClickDate: (dateStr: string) => void;
+  onMouseDownDate?: (dateStr: string) => void;
+  onMouseEnterDate?: (dateStr: string) => void;
 }
 
 export const FiscalYearCalendar: React.FC<FiscalYearCalendarProps> = ({
@@ -43,6 +45,8 @@ export const FiscalYearCalendar: React.FC<FiscalYearCalendarProps> = ({
   onSelectDate,
   onRightClickDate,
   onDoubleClickDate,
+  onMouseDownDate,
+  onMouseEnterDate,
 }) => {
   const months = useMemo(() => getFiscalYearMonths(selectedYear), [selectedYear]);
 
@@ -205,6 +209,8 @@ export const FiscalYearCalendar: React.FC<FiscalYearCalendarProps> = ({
             onSelectDate={onSelectDate}
             onRightClickDate={onRightClickDate}
             onDoubleClickDate={onDoubleClickDate}
+            onMouseDownDate={onMouseDownDate}
+            onMouseEnterDate={onMouseEnterDate}
           />
         ))}
       </div>

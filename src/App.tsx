@@ -9,6 +9,7 @@ import {
 import { fetchBankHolidays, getFiscalYearBankHolidays } from './services/bankHolidays';
 import { calculateAllowanceSummary, getFiscalYearKey } from './utils/calculator';
 import { AppState, DayRecord, BankHoliday, UserConfig, AllowanceAdjustment, PaintTool, ThemeId } from './types';
+import { generateICalFile, getEventsFromDayRecords } from './utils/ical';
 import { FiscalYearCalendar } from './components/calendar/FiscalYearCalendar';
 import { DayEditModal } from './components/calendar/DayEditModal';
 import { AllowanceDashboard } from './components/dashboard/AllowanceDashboard';
@@ -39,6 +40,9 @@ export default function App() {
   // Scroll detection for mini floating toolbar
   const [showMiniToolbar, setShowMiniToolbar] = useState(false);
   const calendarSectionRef = useRef<HTMLDivElement>(null);
+
+  // Mouse drag tracking
+  const isMouseDownRef = useRef(false);
 
   // Current fiscal year key
   const fyKey = useMemo(() => getFiscalYearKey(appState.selectedYear), [appState.selectedYear]);
@@ -83,6 +87,45 @@ export default function App() {
 
   const handleScrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Listen to global mouse up events to end dragging
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      isMouseDownRef.current = false;
+    };
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
+  }, []);
+
+  const handleDayMouseDown = (dateStr: string) => {
+    if (paintTool === 'select') return;
+    isMouseDownRef.current = true;
+    handlePaintDay(dateStr);
+  };
+
+  const handleDayMouseEnter = (dateStr: string) => {
+    if (isMouseDownRef.current && paintTool !== 'select') {
+      handlePaintDay(dateStr);
+    }
+  };
+
+  const handlePaintDay = (dateStr: string) => {
+    if (paintTool === 'select') return;
+    if (paintTool === 'eraser') {
+      handleDeleteDayRecord(dateStr);
+      return;
+    }
+
+    // Paint tool active: apply status with default hours
+    const hours = paintTool === 'non_working' ? 0 : appState.config.dailyDefaultHours;
+    handleSaveDayRecord({
+      date: dateStr,
+      type: paintTool,
+      hours,
+    });
   };
 
   // Fetch UK Bank Holidays for selected region
@@ -202,21 +245,7 @@ export default function App() {
     if (paintTool === 'select') {
       setSelectedDate(dateStr);
       setIsDayModalOpen(true);
-      return;
     }
-
-    if (paintTool === 'eraser') {
-      handleDeleteDayRecord(dateStr);
-      return;
-    }
-
-    // Paint tool active: apply status with default hours
-    const hours = paintTool === 'non_working' ? 0 : appState.config.dailyDefaultHours;
-    handleSaveDayRecord({
-      date: dateStr,
-      type: paintTool,
-      hours,
-    });
   };
 
   // Book all days of a suggested break as vacation
@@ -307,6 +336,21 @@ export default function App() {
   // Export File Backup
   const handleExportBackup = () => {
     exportStateToFile(appState);
+  };
+
+  // Export Calendar (.ics)
+  const handleExportICS = () => {
+    const events = getEventsFromDayRecords(currentFYData.dayRecords, fyBankHolidays);
+    const icsContent = generateICalFile(events);
+    
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `vacation_planner_${fyKey.replace('/', '-')}.ics`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   // Import File Backup
@@ -427,6 +471,15 @@ export default function App() {
             </button>
 
             <button
+              onClick={handleExportICS}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 transition-all"
+              title="Export holidays to .ics calendar file"
+            >
+              <Calendar className="w-4 h-4 text-emerald-600" />
+              <span className="hidden sm:inline">Export ICS</span>
+            </button>
+
+            <button
               onClick={() => setIsSettingsOpen(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-strong hover:bg-strong-hover shadow-xs transition-all"
             >
@@ -445,6 +498,8 @@ export default function App() {
           config={appState.config}
           onOpenAdjustments={() => setIsAdjustmentsOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
+          dayRecords={currentFYData.dayRecords}
+          selectedYear={appState.selectedYear}
         />
 
         {/* Audit / Leave Log Component */}
@@ -468,6 +523,8 @@ export default function App() {
             onSelectDate={handleSelectDate}
             onRightClickDate={handleRightClickDate}
             onDoubleClickDate={handleDoubleClickDate}
+            onMouseDownDate={handleDayMouseDown}
+            onMouseEnterDate={handleDayMouseEnter}
           />
         </div>
       </main>
