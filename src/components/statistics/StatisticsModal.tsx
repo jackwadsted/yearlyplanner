@@ -45,6 +45,17 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
 
   const dailyHours = config.dailyDefaultHours;
   const records = useMemo(() => Object.values(fyData.dayRecords), [fyData.dayRecords]);
+
+  // Vacation charged to the normal allowance (excludes days tagged to an existing extra bucket),
+  // so it is comparable with summary.vacationTotalAllowanceHours.
+  const normalVacationRecords = useMemo(() => {
+    const bucketIds = new Set((fyData.extraAllowances || []).map((x) => x.id));
+    return records.filter(
+      (r) => r.type === 'vacation' && !(r.extraAllowanceId && bucketIds.has(r.extraAllowanceId))
+    );
+  }, [records, fyData.extraAllowances]);
+
+  const extraTakenHours = summary.extraAllowances.reduce((s, x) => s + x.takenHours, 0);
   const fyMonths = useMemo(() => getFYMonths(selectedYear), [selectedYear]);
 
   // ── Burn-down data ──────────────────────────────────────────────────────────
@@ -58,8 +69,8 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
       const monthEndStr = `${monthEnd.getFullYear()}-${String(monthEnd.getMonth() + 1).padStart(2, '0')}-${String(monthEnd.getDate()).padStart(2, '0')}`;
       const capDate = monthEndStr > `${selectedYear + 1}-04-05` ? `${selectedYear + 1}-04-05` : monthEndStr;
 
-      const cumTaken = records
-        .filter((r) => r.type === 'vacation' && r.date <= capDate && isInFiscalYear(r.date, selectedYear))
+      const cumTaken = normalVacationRecords
+        .filter((r) => r.date <= capDate && isInFiscalYear(r.date, selectedYear))
         .reduce((s, r) => s + r.hours, 0);
 
       // Ideal linear burn: by end of month i+1 out of 13 we should have used (i+1)/13 of allowance
@@ -71,7 +82,7 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
         remaining: Math.round((totalAllowance - cumTaken) * 10) / 10,
       };
     });
-  }, [records, fyMonths, summary.vacationTotalAllowanceHours, selectedYear]);
+  }, [normalVacationRecords, fyMonths, summary.vacationTotalAllowanceHours, selectedYear]);
 
   // ── Monthly Leave Heat ──────────────────────────────────────────────────────
   const leaveHeat = useMemo(() => {
@@ -112,8 +123,8 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
 
     // Only count vacation days that have already passed — future planned days
     // must not inflate the burn rate.
-    const vacationTakenToDate = records
-      .filter((r) => r.type === 'vacation' && r.date <= today && isInFiscalYear(r.date, selectedYear))
+    const vacationTakenToDate = normalVacationRecords
+      .filter((r) => r.date <= today && isInFiscalYear(r.date, selectedYear))
       .reduce((s, r) => s + r.hours, 0);
 
     // Burn rate hours/day based only on days elapsed so far
@@ -132,11 +143,11 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
       daysLeft,
       vacationTakenToDate: Math.round(vacationTakenToDate * 10) / 10,
     };
-  }, [records, summary.vacationTotalAllowanceHours, selectedYear]);
+  }, [normalVacationRecords, summary.vacationTotalAllowanceHours, selectedYear]);
 
   // ── Summary stats ──────────────────────────────────────────────────────────
   const totalLeaveLogged = Math.round(
-    (summary.vacationTakenHours + summary.bankHolidayTakenHours + summary.totalSicknessHours) * 10
+    (summary.vacationTakenHours + extraTakenHours + summary.bankHolidayTakenHours + summary.totalSicknessHours) * 10
   ) / 10;
 
   // ── Burn-down SVG chart (pure, no library) ──────────────────────────────────
@@ -260,6 +271,13 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
                 color: 'bg-accent-50 border-accent-200/70 text-accent-700',
                 val: 'text-accent-900',
               },
+              ...summary.extraAllowances.map((x) => ({
+                label: `${x.label} remaining`,
+                value: `${x.remainingHours}h`,
+                sub: `${x.takenDaysEquivalent}d of ${x.totalDaysEquivalent}d used`,
+                color: 'bg-brand-50 border-brand-200/70 text-brand-700',
+                val: 'text-brand-900',
+              })),
               {
                 label: 'Sickness',
                 value: `${summary.totalSicknessHours}h`,
@@ -444,7 +462,9 @@ export const StatisticsModal: React.FC<StatisticsModalProps> = ({
                 <tfoot>
                   <tr className="border-t-2 border-slate-200">
                     <td className="pt-1.5 text-slate-500 font-semibold" colSpan={2}>Total logged</td>
-                    <td className="pt-1.5 text-right font-mono font-bold text-brand-700">{summary.vacationTakenHours}h</td>
+                    <td className="pt-1.5 text-right font-mono font-bold text-brand-700">
+                      {Math.round((summary.vacationTakenHours + extraTakenHours) * 100) / 100}h
+                    </td>
                     <td className="pt-1.5 text-right font-mono font-bold text-accent-700 pr-1">{summary.bankHolidayTakenHours}h</td>
                     <td className="pt-1.5 text-right font-mono font-bold text-amber-700">{summary.totalSicknessHours}h</td>
                   </tr>

@@ -1,11 +1,13 @@
 import React from 'react';
 import { CalendarDay } from '../../utils/dateUtils';
-import { DayRecord, DayType, UserConfig, BankHoliday, PaintTool } from '../../types';
+import { DayRecord, DayType, UserConfig, BankHoliday, PaintTool, ExtraAllowance } from '../../types';
 import { Palmtree, Landmark, Coffee, Activity } from 'lucide-react';
+import { bucketInitial } from '../../utils/extraAllowance';
 
 interface DayCellProps {
   day: CalendarDay;
   record?: DayRecord;
+  extraAllowances?: ExtraAllowance[];
   bankHoliday?: BankHoliday;
   config: UserConfig;
   isSelected?: boolean;
@@ -20,6 +22,7 @@ interface DayCellProps {
 export const DayCell: React.FC<DayCellProps> = ({
   day,
   record,
+  extraAllowances,
   bankHoliday,
   config,
   isSelected,
@@ -116,11 +119,15 @@ export const DayCell: React.FC<DayCellProps> = ({
     }
   };
 
+  const extraLabel = isVacation
+    ? extraAllowances?.find((x) => x.id === record?.extraAllowanceId)?.label
+    : undefined;
+
   const getTooltip = () => {
     let base = bankHoliday
       ? `UK Bank Holiday: ${bankHoliday.title}`
       : isVacation
-      ? `Vacation: ${hours}h`
+      ? `Vacation${extraLabel ? ` (${extraLabel})` : ''}: ${hours}h`
       : isBankHoliday
       ? `Bank Holiday: ${hours}h`
       : isNonWorking
@@ -168,7 +175,16 @@ export const DayCell: React.FC<DayCellProps> = ({
             />
           )}
 
-          {isVacation && <Palmtree className="w-3.5 h-3.5 text-brand-600 shrink-0" />}
+          {isVacation && (extraLabel ? (
+            <span
+              className="w-3.5 h-3.5 rounded-sm bg-brand-600 text-white text-[9px] font-bold leading-none flex items-center justify-center shrink-0"
+              title={extraLabel}
+            >
+              {bucketInitial(extraLabel)}
+            </span>
+          ) : (
+            <Palmtree className="w-3.5 h-3.5 text-brand-600 shrink-0" />
+          ))}
           {isBankHoliday && <Landmark className="w-3.5 h-3.5 text-accent-600 shrink-0" />}
           {isSickness && <Activity className="w-3.5 h-3.5 text-amber-600 shrink-0" />}
           {isNonWorking && dayOfWeek !== 0 && dayOfWeek !== 6 && (

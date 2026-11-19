@@ -8,7 +8,7 @@ import {
 } from './services/storage';
 import { fetchBankHolidays, getFiscalYearBankHolidays } from './services/bankHolidays';
 import { calculateAllowanceSummary, getFiscalYearKey } from './utils/calculator';
-import { AppState, DayRecord, BankHoliday, UserConfig, AllowanceAdjustment, PaintTool, ThemeId } from './types';
+import { AppState, DayRecord, BankHoliday, UserConfig, AllowanceAdjustment, ExtraAllowance, PaintTool, ThemeId } from './types';
 import { generateICalFile, getEventsFromDayRecords } from './utils/ical';
 import { FiscalYearCalendar } from './components/calendar/FiscalYearCalendar';
 import { DayEditModal } from './components/calendar/DayEditModal';
@@ -28,6 +28,9 @@ export default function App() {
 
   // Paint Tool state ('select' | 'vacation' | 'bank_holiday' | 'non_working' | 'working' | 'sickness' | 'eraser')
   const [paintTool, setPaintTool] = useState<PaintTool>('select');
+
+  // Extra vacation bucket the Vacation brush charges to ('' = normal allowance)
+  const [activeExtraId, setActiveExtraId] = useState<string>('');
 
   // Modals state
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -125,6 +128,7 @@ export default function App() {
       date: dateStr,
       type: paintTool,
       hours,
+      ...(paintTool === 'vacation' && activeExtraId ? { extraAllowanceId: activeExtraId } : {}),
     });
   };
 
@@ -333,6 +337,65 @@ export default function App() {
     });
   };
 
+  // Add Extra Vacation Bucket
+  const handleAddExtraAllowance = (extra: Omit<ExtraAllowance, 'id' | 'createdAt'>) => {
+    const newExtra: ExtraAllowance = {
+      ...extra,
+      id: 'extra_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+      createdAt: new Date().toISOString(),
+    };
+
+    setAppState((prev) => {
+      const currentYearObj = prev.years[fyKey] || {
+        fiscalYear: fyKey,
+        dayRecords: {},
+        adjustments: [],
+      };
+
+      return {
+        ...prev,
+        years: {
+          ...prev.years,
+          [fyKey]: {
+            ...currentYearObj,
+            extraAllowances: [...(currentYearObj.extraAllowances || []), newExtra],
+          },
+        },
+      };
+    });
+  };
+
+  // Delete Extra Vacation Bucket (tagged days fall back to the normal allowance)
+  const handleDeleteExtraAllowance = (id: string) => {
+    setActiveExtraId((prev) => (prev === id ? '' : prev));
+    setAppState((prev) => {
+      const currentYearObj = prev.years[fyKey];
+      if (!currentYearObj) return prev;
+
+      const nextDayRecords: Record<string, DayRecord> = {};
+      for (const [date, record] of Object.entries(currentYearObj.dayRecords)) {
+        if (record.extraAllowanceId === id) {
+          const { extraAllowanceId: _removed, ...rest } = record;
+          nextDayRecords[date] = rest;
+        } else {
+          nextDayRecords[date] = record;
+        }
+      }
+
+      return {
+        ...prev,
+        years: {
+          ...prev.years,
+          [fyKey]: {
+            ...currentYearObj,
+            dayRecords: nextDayRecords,
+            extraAllowances: (currentYearObj.extraAllowances || []).filter((e) => e.id !== id),
+          },
+        },
+      };
+    });
+  };
+
   // Export File Backup
   const handleExportBackup = () => {
     exportStateToFile(appState);
@@ -406,6 +469,9 @@ export default function App() {
     <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans selection:bg-brand-500 selection:text-white">
       {/* Floating Mini Toolbar when scrolled down to calendars */}
       <MiniToolbar
+        extraAllowances={currentFYData.extraAllowances || []}
+        activeExtraId={activeExtraId}
+        onSelectExtraId={setActiveExtraId}
         summary={summary}
         activePaintTool={paintTool}
         onSelectPaintTool={handleSelectPaintTool}
@@ -504,6 +570,7 @@ export default function App() {
 
         {/* Audit / Leave Log Component */}
         <LeaveList
+          extraAllowances={currentFYData.extraAllowances || []}
           dayRecords={currentFYData.dayRecords}
           onEditDate={handleDoubleClickDate}
           onDeleteRecord={handleDeleteDayRecord}
@@ -512,6 +579,9 @@ export default function App() {
         {/* 13-Month Fiscal Year Calendar (3 Months Wide) */}
         <div ref={calendarSectionRef}>
           <FiscalYearCalendar
+            extraAllowances={currentFYData.extraAllowances || []}
+            activeExtraId={activeExtraId}
+            onSelectExtraId={setActiveExtraId}
             selectedYear={appState.selectedYear}
             onYearChange={handleYearChange}
             dayRecords={currentFYData.dayRecords}
@@ -550,6 +620,7 @@ export default function App() {
 
       {/* Day Details Modal */}
       <DayEditModal
+        extraAllowances={currentFYData.extraAllowances || []}
         dateStr={selectedDate}
         currentRecord={selectedDate ? currentFYData.dayRecords[selectedDate] : undefined}
         bankHoliday={selectedDate ? bankHolidaysMap[selectedDate] : undefined}
@@ -601,11 +672,14 @@ export default function App() {
       <AllowanceOverridesModal
         fiscalYearKey={fyKey}
         adjustments={currentFYData.adjustments || []}
+        extraAllowances={currentFYData.extraAllowances || []}
         config={appState.config}
         isOpen={isAdjustmentsOpen}
         onClose={() => setIsAdjustmentsOpen(false)}
         onAddAdjustment={handleAddAdjustment}
         onDeleteAdjustment={handleDeleteAdjustment}
+        onAddExtraAllowance={handleAddExtraAllowance}
+        onDeleteExtraAllowance={handleDeleteExtraAllowance}
       />
     </div>
   );

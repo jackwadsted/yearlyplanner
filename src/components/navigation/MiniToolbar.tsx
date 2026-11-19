@@ -1,5 +1,6 @@
 import React from 'react';
-import { AllowanceSummary, PaintTool } from '../../types';
+import { AllowanceSummary, ExtraAllowance, PaintTool } from '../../types';
+import { bucketInitial } from '../../utils/extraAllowance';
 import {
   MousePointerClick,
   Palmtree,
@@ -13,6 +14,9 @@ import {
 } from 'lucide-react';
 
 interface MiniToolbarProps {
+  extraAllowances: ExtraAllowance[];
+  activeExtraId: string;
+  onSelectExtraId: (id: string) => void;
   summary: AllowanceSummary;
   activePaintTool: PaintTool;
   onSelectPaintTool: (tool: PaintTool) => void;
@@ -22,6 +26,9 @@ interface MiniToolbarProps {
 }
 
 export const MiniToolbar: React.FC<MiniToolbarProps> = ({
+  extraAllowances,
+  activeExtraId,
+  onSelectExtraId,
   summary,
   activePaintTool,
   onSelectPaintTool,
@@ -135,6 +142,27 @@ export const MiniToolbar: React.FC<MiniToolbarProps> = ({
             </div>
           </div>
 
+          {/* Extra Vacation Buckets */}
+          {summary.extraAllowances.map((x) => (
+            <div
+              key={x.id}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-brand-50/80 border border-brand-200/70 text-slate-800 text-xs"
+              title={`${x.label}: ${x.remainingHours}h remaining of ${x.totalHours}h total`}
+            >
+              <span className="w-3.5 h-3.5 rounded-sm bg-brand-600 text-white text-[9px] font-bold leading-none flex items-center justify-center shrink-0">
+                {bucketInitial(x.label)}
+              </span>
+              <div className="flex items-baseline gap-1">
+                <span className="font-bold font-mono text-brand-950 text-xs sm:text-sm">
+                  {x.remainingHours}h
+                </span>
+                <span className="text-[11px] text-brand-700 font-medium hidden sm:inline truncate max-w-[90px]">
+                  {x.label}
+                </span>
+              </div>
+            </div>
+          ))}
+
           {/* Bank Holiday Streamlined Allowance */}
           <div
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-accent-50/80 border border-accent-200/70 text-slate-800 text-xs"
@@ -183,6 +211,23 @@ export const MiniToolbar: React.FC<MiniToolbarProps> = ({
         {/* Painting Buttons (Just Icons) */}
         <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           <div className="h-5 w-px bg-slate-200 hidden sm:block mx-0.5" />
+
+          {activePaintTool === 'vacation' && extraAllowances.length > 0 && (
+            <select
+              value={extraAllowances.some((x) => x.id === activeExtraId) ? activeExtraId : ''}
+              onChange={(e) => onSelectExtraId(e.target.value)}
+              className="max-w-[110px] px-2 py-1.5 bg-surface border border-brand-300 rounded-xl text-[11px] font-semibold text-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              title="Which allowance painted vacation days are charged to"
+              aria-label="Charge painted vacation days to"
+            >
+              <option value="">Normal</option>
+              {extraAllowances.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.label}
+                </option>
+              ))}
+            </select>
+          )}
 
           <div className="flex items-center gap-1 sm:gap-1.5">
             {tools.map((t) => {

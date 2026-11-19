@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { getFiscalYearMonths } from '../../utils/dateUtils';
 import { getFiscalYearKey } from '../../utils/calculator';
-import { DayRecord, UserConfig, BankHoliday, PaintTool } from '../../types';
+import { DayRecord, UserConfig, BankHoliday, PaintTool, ExtraAllowance } from '../../types';
 import { MonthCard } from './MonthCard';
 import {
   ChevronLeft,
@@ -18,6 +18,9 @@ import {
 } from 'lucide-react';
 
 interface FiscalYearCalendarProps {
+  extraAllowances: ExtraAllowance[];
+  activeExtraId: string;
+  onSelectExtraId: (id: string) => void;
   selectedYear: number;
   onYearChange: (year: number) => void;
   dayRecords: Record<string, DayRecord>;
@@ -34,6 +37,9 @@ interface FiscalYearCalendarProps {
 }
 
 export const FiscalYearCalendar: React.FC<FiscalYearCalendarProps> = ({
+  extraAllowances,
+  activeExtraId,
+  onSelectExtraId,
   selectedYear,
   onYearChange,
   dayRecords,
@@ -177,6 +183,23 @@ export const FiscalYearCalendar: React.FC<FiscalYearCalendarProps> = ({
               );
             })}
           </div>
+
+          {activePaintTool === 'vacation' && extraAllowances.length > 0 && (
+            <select
+              value={extraAllowances.some((x) => x.id === activeExtraId) ? activeExtraId : ''}
+              onChange={(e) => onSelectExtraId(e.target.value)}
+              className="px-2.5 py-1.5 bg-surface border border-brand-300 rounded-xl text-xs font-semibold text-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              title="Which allowance painted vacation days are charged to"
+              aria-label="Charge painted vacation days to"
+            >
+              <option value="">Normal allowance</option>
+              {extraAllowances.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.label}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
       </div>
 
@@ -202,6 +225,7 @@ export const FiscalYearCalendar: React.FC<FiscalYearCalendarProps> = ({
             key={m.name}
             monthInfo={m}
             dayRecords={dayRecords}
+            extraAllowances={extraAllowances}
             bankHolidaysMap={bankHolidaysMap}
             config={config}
             selectedDate={selectedDate}

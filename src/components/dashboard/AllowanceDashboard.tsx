@@ -2,6 +2,7 @@ import React from 'react';
 import { AllowanceSummary, UserConfig, DayRecord } from '../../types';
 import { Palmtree, Landmark, Clock, CalendarDays, PlusCircle, AlertCircle, Sparkles } from 'lucide-react';
 import { analyzeBurnout } from '../../utils/burnout';
+import { bucketInitial } from '../../utils/extraAllowance';
 
 interface AllowanceDashboardProps {
   summary: AllowanceSummary;
@@ -149,6 +150,47 @@ export const AllowanceDashboard: React.FC<AllowanceDashboardProps> = ({
               <span className="font-semibold text-rose-600">-{summary.vacationTakenHours}h ({summary.vacationTakenDaysEquivalent}d)</span>
             </div>
           </div>
+
+          {/* Extra vacation buckets (a subset of vacation, tracked separately) */}
+          {summary.extraAllowances.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-slate-100 space-y-3">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                Extra vacation (separate allowance)
+              </div>
+              {summary.extraAllowances.map((x) => {
+                const percentUsed = x.totalHours > 0
+                  ? Math.min(100, Math.round((x.takenHours / x.totalHours) * 100))
+                  : 0;
+                return (
+                  <div key={x.id} className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="w-5 h-5 rounded-md bg-brand-600 text-white text-[11px] font-bold flex items-center justify-center shrink-0">
+                          {bucketInitial(x.label)}
+                        </span>
+                        <span className="text-xs font-semibold text-slate-800 truncate">{x.label}</span>
+                      </div>
+                      <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200/60 shrink-0">
+                        {percentUsed}% used
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className="bg-brand-500 h-1.5 rounded-full transition-all duration-500"
+                        style={{ width: `${percentUsed}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs font-mono text-slate-600">
+                      <span>
+                        <span className="font-bold text-slate-900">{x.remainingHours}h</span> ({x.remainingDaysEquivalent}d) left of {x.totalHours}h
+                      </span>
+                      <span className="font-semibold text-rose-600">-{x.takenHours}h ({x.takenDaysEquivalent}d)</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Card 2: Bank Holiday Balance */}

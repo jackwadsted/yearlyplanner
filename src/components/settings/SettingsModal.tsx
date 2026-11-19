@@ -489,7 +489,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <span>Reset Current Fiscal Year Data</span>
               </h3>
               <p className="text-rose-600 leading-relaxed">
-                Clear all logged days and adjustments for the currently selected fiscal year.
+                Clear all logged days, adjustments and extra vacation buckets for the currently selected fiscal year.
               </p>
               <button
                 type="button"

@@ -1,4 +1,4 @@
-import { UserConfig, FiscalYearData, AllowanceSummary } from '../types';
+import { UserConfig, FiscalYearData, AllowanceSummary, SummaryExtraAllowance } from '../types';
 
 /**
  * Calculates vacation entitlement in hours using the formula:
@@ -62,6 +62,13 @@ export function calculateAllowanceSummary(
   // Day records
   const dayRecords = fyData ? Object.values(fyData.dayRecords) : [];
 
+  // Extra vacation buckets: tagged vacation days count against their bucket only
+  const extraAllowances = fyData?.extraAllowances || [];
+  const extraTakenById: Record<string, number> = {};
+  for (const bucket of extraAllowances) {
+    extraTakenById[bucket.id] = 0;
+  }
+
   let vacationTakenHours = 0;
   let bankHolidayTakenHours = 0;
   let totalWorkingHoursLogged = 0;
@@ -71,7 +78,11 @@ export function calculateAllowanceSummary(
 
   for (const record of dayRecords) {
     if (record.type === 'vacation') {
-      vacationTakenHours += record.hours;
+      if (record.extraAllowanceId && record.extraAllowanceId in extraTakenById) {
+        extraTakenById[record.extraAllowanceId] += record.hours;
+      } else {
+        vacationTakenHours += record.hours;
+      }
     } else if (record.type === 'bank_holiday') {
       bankHolidayTakenHours += record.hours;
     } else if (record.type === 'working') {
@@ -88,6 +99,22 @@ export function calculateAllowanceSummary(
   const vacationRemainingHours = Math.round((vacationTotalAllowanceHours - vacationTakenHours) * 100) / 100;
   const bankHolidayRemainingHours = Math.round((bankHolidayTotalAllowanceHours - bankHolidayTakenHours) * 100) / 100;
 
+  const extraAllowanceSummaries: SummaryExtraAllowance[] = extraAllowances.map((bucket) => {
+    const totalHours = Math.round(bucket.hours * 100) / 100;
+    const takenHours = Math.round(extraTakenById[bucket.id] * 100) / 100;
+    const remainingHours = Math.round((totalHours - takenHours) * 100) / 100;
+    return {
+      id: bucket.id,
+      label: bucket.label,
+      totalHours,
+      takenHours,
+      remainingHours,
+      totalDaysEquivalent: Math.round((totalHours / dailyHours) * 10) / 10,
+      takenDaysEquivalent: Math.round((takenHours / dailyHours) * 10) / 10,
+      remainingDaysEquivalent: Math.round((remainingHours / dailyHours) * 10) / 10,
+    };
+  });
+
   return {
     fiscalYear: fyKey,
 
@@ -99,6 +126,8 @@ export function calculateAllowanceSummary(
     vacationTotalDaysEquivalent: Math.round((vacationTotalAllowanceHours / dailyHours) * 10) / 10,
     vacationTakenDaysEquivalent: Math.round((vacationTakenHours / dailyHours) * 10) / 10,
     vacationRemainingDaysEquivalent: Math.round((vacationRemainingHours / dailyHours) * 10) / 10,
+
+    extraAllowances: extraAllowanceSummaries,
 
     bankHolidayBaseHours,
     bankHolidayAdjustmentHours: Math.round(bankHolidayAdjustmentHours * 100) / 100,

@@ -75,6 +75,54 @@ function runValidationTests() {
   if (summary.vacationRemainingHours !== 171.6) throw new Error('Test 3 Failed: Vacation remaining');
   if (summary.bankHolidayRemainingHours !== 44.55) throw new Error('Test 3 Failed: BH remaining');
 
+  // Test 3b: No buckets -> empty array, existing results unchanged
+  if (!Array.isArray(summary.extraAllowances) || summary.extraAllowances.length !== 0) {
+    throw new Error('Test 3b Failed: Expected empty extraAllowances when no buckets exist');
+  }
+  const summaryNoFy = calculateAllowanceSummary(user1Config, undefined, '2026/27');
+  if (summaryNoFy.extraAllowances.length !== 0) throw new Error('Test 3b Failed: Expected empty extraAllowances without FY data');
+  console.log('Test 3b: No buckets -> extraAllowances is empty and main figures unchanged.');
+
+  // Test 5: Extra vacation buckets
+  const fyExtra: FiscalYearData = {
+    fiscalYear: '2026/27',
+    dayRecords: {
+      '2026-06-01': { date: '2026-06-01', type: 'vacation', hours: 8.25 },
+      '2026-06-02': { date: '2026-06-02', type: 'vacation', hours: 8.25, extraAllowanceId: 'extra_1' },
+      '2026-06-03': { date: '2026-06-03', type: 'vacation', hours: 4.13, extraAllowanceId: 'extra_1' },
+      '2026-06-04': { date: '2026-06-04', type: 'vacation', hours: 8.25, extraAllowanceId: 'extra_missing' },
+    },
+    adjustments: [],
+    extraAllowances: [
+      {
+        id: 'extra_1',
+        fiscalYear: '2026/27',
+        label: 'Bonus leave',
+        hours: 33,
+        createdAt: '2026-04-06T00:00:00Z',
+      },
+    ],
+  };
+
+  const extraSummary = calculateAllowanceSummary(user1Config, fyExtra, '2026/27');
+  const bucket = extraSummary.extraAllowances[0];
+  console.log(`Test 5: Bucket total/taken/remaining: ${bucket?.totalHours}/${bucket?.takenHours}/${bucket?.remainingHours} (Expected: 33/12.38/20.62)`);
+  console.log(`Test 5: Main vacation taken: ${extraSummary.vacationTakenHours} (Expected: 16.5), remaining: ${extraSummary.vacationRemainingHours} (Expected: 155.1)`);
+
+  if (extraSummary.extraAllowances.length !== 1) throw new Error('Test 5 Failed: Expected one bucket');
+  if (bucket.id !== 'extra_1' || bucket.label !== 'Bonus leave') throw new Error('Test 5 Failed: Bucket id/label');
+  if (bucket.totalHours !== 33) throw new Error('Test 5 Failed: Bucket total');
+  if (bucket.takenHours !== 12.38) throw new Error('Test 5 Failed: Bucket taken');
+  if (bucket.remainingHours !== 20.62) throw new Error('Test 5 Failed: Bucket remaining');
+  if (bucket.totalDaysEquivalent !== 4) throw new Error('Test 5 Failed: Bucket total days');
+  if (bucket.takenDaysEquivalent !== 1.5) throw new Error('Test 5 Failed: Bucket taken days');
+  if (bucket.remainingDaysEquivalent !== 2.5) throw new Error('Test 5 Failed: Bucket remaining days');
+
+  // Tagged days must not reduce the main pool; the missing-bucket day falls back to it
+  if (extraSummary.vacationTakenHours !== 16.5) throw new Error('Test 5 Failed: Main vacation taken (tagged excluded, orphan included)');
+  if (extraSummary.vacationRemainingHours !== 155.1) throw new Error('Test 5 Failed: Main vacation remaining');
+  console.log('Test 5: Extra buckets verified (tagged days excluded from main pool, missing bucket falls back).');
+
   // Test 4: Fiscal Year Date Boundaries (April 6 - April 5)
   if (!isDateInFiscalYear('2026-04-06', 2026)) throw new Error('Test 4 Failed: 2026-04-06 should be in FY 2026/27');
   if (!isDateInFiscalYear('2027-04-05', 2026)) throw new Error('Test 4 Failed: 2027-04-05 should be in FY 2026/27');

@@ -25,6 +25,15 @@ export interface DayRecord {
   hours: number;
   isCustomHours?: boolean;
   note?: string;
+  extraAllowanceId?: string; // only meaningful when type === 'vacation'; missing = normal allowance
+}
+
+export interface ExtraAllowance {
+  id: string;
+  fiscalYear: string; // e.g., '2026/27'
+  label: string;
+  hours: number;
+  createdAt: string;
 }
 
 export interface AllowanceAdjustment {
@@ -52,6 +61,7 @@ export interface FiscalYearData {
   fiscalYear: string; // '2026/27'
   dayRecords: Record<string, DayRecord>; // key: 'YYYY-MM-DD'
   adjustments: AllowanceAdjustment[];
+  extraAllowances?: ExtraAllowance[];
 }
 
 export interface AppState {
@@ -67,6 +77,17 @@ export interface BankHoliday {
   bunting?: boolean;
 }
 
+export interface SummaryExtraAllowance {
+  id: string;
+  label: string;
+  totalHours: number;
+  takenHours: number;
+  remainingHours: number;
+  totalDaysEquivalent: number;
+  takenDaysEquivalent: number;
+  remainingDaysEquivalent: number;
+}
+
 export interface AllowanceSummary {
   fiscalYear: string;
   
@@ -79,6 +100,9 @@ export interface AllowanceSummary {
   vacationTotalDaysEquivalent: number;
   vacationTakenDaysEquivalent: number;
   vacationRemainingDaysEquivalent: number;
+
+  // Extra vacation buckets (tagged vacation days are excluded from the vacation figures above)
+  extraAllowances: SummaryExtraAllowance[];
 
   // Bank Holidays
   bankHolidayBaseHours: number;

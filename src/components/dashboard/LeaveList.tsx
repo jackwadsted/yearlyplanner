@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { DayRecord, DayType } from '../../types';
+import { DayRecord, DayType, ExtraAllowance } from '../../types';
 import { formatFriendlyDate } from '../../utils/dateUtils';
+import { bucketInitial } from '../../utils/extraAllowance';
 import { Palmtree, Landmark, Activity, Briefcase, Trash2, Edit3, ChevronDown, ChevronUp, Calendar, Info } from 'lucide-react';
 
 interface LeaveListProps {
+  extraAllowances: ExtraAllowance[];
   dayRecords: Record<string, DayRecord>;
   onEditDate: (dateStr: string) => void;
   onDeleteRecord: (dateStr: string) => void;
 }
 
 export const LeaveList: React.FC<LeaveListProps> = ({
+  extraAllowances,
   dayRecords,
   onEditDate,
   onDeleteRecord,
@@ -22,17 +25,42 @@ export const LeaveList: React.FC<LeaveListProps> = ({
     .filter((r) => r.type === 'vacation' || r.type === 'bank_holiday' || r.type === 'sickness')
     .sort((a, b) => a.date.localeCompare(b.date));
 
-  const filteredRecords = allLeaveRecords.filter((r) =>
-    filterType === 'all' ? true : r.type === filterType
-  );
+  // A vacation record belongs to a bucket only if that bucket still exists
+  const getExtraLabel = (r: DayRecord) =>
+    r.type === 'vacation' ? extraAllowances.find((x) => x.id === r.extraAllowanceId)?.label : undefined;
 
-  const getTypeBadge = (type: DayType) => {
+  // Filters: 'all' | DayType | 'vacation_normal' | bucket id
+  const filterOptions: { key: string; label: string }[] = [
+    { key: 'all', label: 'all' },
+    { key: 'vacation', label: 'vacation' },
+    ...(extraAllowances.length > 0 ? [{ key: 'vacation_normal', label: 'normal vacation' }] : []),
+    ...extraAllowances.map((x) => ({ key: x.id, label: x.label })),
+    { key: 'bank_holiday', label: 'bank holiday' },
+    { key: 'sickness', label: 'sickness' },
+  ];
+
+  const activeFilter = filterOptions.some((o) => o.key === filterType) ? filterType : 'all';
+
+  const filteredRecords = allLeaveRecords.filter((r) => {
+    if (activeFilter === 'all') return true;
+    if (activeFilter === 'vacation_normal') return r.type === 'vacation' && !getExtraLabel(r);
+    if (extraAllowances.some((x) => x.id === activeFilter)) return r.extraAllowanceId === activeFilter && r.type === 'vacation';
+    return r.type === activeFilter;
+  });
+
+  const getTypeBadge = (type: DayType, extraLabel?: string) => {
     switch (type) {
       case 'vacation':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-50 text-brand-700 border border-brand-200">
-            <Palmtree className="w-3 h-3" />
-            <span>Vacation</span>
+            {extraLabel ? (
+              <span className="w-3 h-3 rounded-sm bg-brand-600 text-white text-[8px] font-bold leading-none flex items-center justify-center">
+                {bucketInitial(extraLabel)}
+              </span>
+            ) : (
+              <Palmtree className="w-3 h-3" />
+            )}
+            <span>{extraLabel ? `Vacation · ${extraLabel}` : 'Vacation'}</span>
           </span>
         );
       case 'bank_holiday':
@@ -98,17 +126,17 @@ export const LeaveList: React.FC<LeaveListProps> = ({
               {/* Filter Bar */}
               <div className="flex items-center gap-2 text-xs">
                 <span className="text-slate-500 font-medium">Filter:</span>
-                {['all', 'vacation', 'bank_holiday', 'sickness'].map((t) => (
+                {filterOptions.map((o) => (
                   <button
-                    key={t}
-                    onClick={() => setFilterType(t)}
+                    key={o.key}
+                    onClick={() => setFilterType(o.key)}
                     className={`px-2.5 py-1 rounded-lg capitalize transition-colors ${
-                      filterType === t
+                      activeFilter === o.key
                         ? 'bg-strong text-white font-medium'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
-                    {t.replace('_', ' ')}
+                    {o.label}
                   </button>
                 ))}
               </div>
@@ -129,7 +157,7 @@ export const LeaveList: React.FC<LeaveListProps> = ({
                     {filteredRecords.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="py-4 text-center text-slate-400 text-xs">
-                          No {filterType.replace('_', ' ')} entries logged.
+                          No matching entries logged.
                         </td>
                       </tr>
                     ) : (
@@ -138,7 +166,7 @@ export const LeaveList: React.FC<LeaveListProps> = ({
                           <td className="py-2.5 px-3 font-medium text-slate-800">
                             {formatFriendlyDate(r.date)}
                           </td>
-                          <td className="py-2.5 px-3">{getTypeBadge(r.type)}</td>
+                          <td className="py-2.5 px-3">{getTypeBadge(r.type, getExtraLabel(r))}</td>
                           <td className="py-2.5 px-3 font-mono font-semibold text-slate-700">
                             {r.hours}h
                           </td>

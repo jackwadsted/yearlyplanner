@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DayRecord, DayType, UserConfig, BankHoliday } from '../../types';
+import { DayRecord, DayType, UserConfig, BankHoliday, ExtraAllowance } from '../../types';
 import { formatFriendlyDate } from '../../utils/dateUtils';
 import {
   X,
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 
 interface DayEditModalProps {
+  extraAllowances: ExtraAllowance[];
   dateStr: string | null;
   currentRecord?: DayRecord;
   bankHoliday?: BankHoliday;
@@ -26,6 +27,7 @@ interface DayEditModalProps {
 }
 
 export const DayEditModal: React.FC<DayEditModalProps> = ({
+  extraAllowances,
   dateStr,
   currentRecord,
   bankHoliday,
@@ -48,6 +50,7 @@ export const DayEditModal: React.FC<DayEditModalProps> = ({
   const [hours, setHours] = useState<number>(initialHours);
   const [note, setNote] = useState<string>(currentRecord?.note || '');
   const [isCustomHours, setIsCustomHours] = useState<boolean>(Boolean(currentRecord?.isCustomHours));
+  const [extraAllowanceId, setExtraAllowanceId] = useState<string>(currentRecord?.extraAllowanceId || '');
 
   // Sync state if date or record changes
   useEffect(() => {
@@ -56,6 +59,7 @@ export const DayEditModal: React.FC<DayEditModalProps> = ({
       setHours(currentRecord.hours);
       setNote(currentRecord.note || '');
       setIsCustomHours(Boolean(currentRecord.isCustomHours));
+      setExtraAllowanceId(currentRecord.extraAllowanceId || '');
     } else {
       const defaultType = bankHoliday ? 'bank_holiday' : isDefaultWorkingDay ? 'working' : 'non_working';
       setType(defaultType);
@@ -63,6 +67,7 @@ export const DayEditModal: React.FC<DayEditModalProps> = ({
       setHours(defaultH);
       setNote('');
       setIsCustomHours(false);
+      setExtraAllowanceId('');
     }
   }, [dateStr, currentRecord, bankHoliday, isDefaultWorkingDay, config.dailyDefaultHours]);
 
@@ -79,12 +84,15 @@ export const DayEditModal: React.FC<DayEditModalProps> = ({
 
   const handleSave = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    const chargedExtraId =
+      type === 'vacation' && extraAllowances.some((x) => x.id === extraAllowanceId) ? extraAllowanceId : undefined;
     onSaveRecord({
       date: dateStr,
       type,
       hours: Number(hours) || 0,
       isCustomHours: isCustomHours || hours !== config.dailyDefaultHours,
       note: note.trim() || undefined,
+      ...(chargedExtraId ? { extraAllowanceId: chargedExtraId } : {}),
     });
     onClose();
   };
@@ -199,6 +207,27 @@ export const DayEditModal: React.FC<DayEditModalProps> = ({
               })}
             </div>
           </div>
+
+          {/* Charge To (extra vacation bucket) */}
+          {type === 'vacation' && extraAllowances.length > 0 && (
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+                Charge To
+              </label>
+              <select
+                value={extraAllowances.some((x) => x.id === extraAllowanceId) ? extraAllowanceId : ''}
+                onChange={(e) => setExtraAllowanceId(e.target.value)}
+                className="w-full px-3 py-2 bg-surface border border-slate-300 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              >
+                <option value="">Normal vacation allowance</option>
+                {extraAllowances.map((x) => (
+                  <option key={x.id} value={x.id}>
+                    {x.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Hours Input & Quick Presets */}
           {type !== 'non_working' && (

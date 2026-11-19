@@ -1,11 +1,12 @@
 import React from 'react';
 import { MonthInfo } from '../../utils/dateUtils';
-import { DayRecord, UserConfig, BankHoliday, PaintTool } from '../../types';
+import { DayRecord, UserConfig, BankHoliday, PaintTool, ExtraAllowance } from '../../types';
 import { DayCell } from './DayCell';
 
 interface MonthCardProps {
   monthInfo: MonthInfo;
   dayRecords: Record<string, DayRecord>;
+  extraAllowances: ExtraAllowance[];
   bankHolidaysMap: Record<string, BankHoliday>;
   config: UserConfig;
   selectedDate?: string;
@@ -22,6 +23,7 @@ const WEEKDAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 export const MonthCard: React.FC<MonthCardProps> = ({
   monthInfo,
   dayRecords,
+  extraAllowances,
   bankHolidaysMap,
   config,
   selectedDate,
@@ -102,6 +104,7 @@ export const MonthCard: React.FC<MonthCardProps> = ({
             key={day.dateStr + (day.isInCurrentMonth ? '-curr' : '-pad')}
             day={day}
             record={dayRecords[day.dateStr]}
+            extraAllowances={extraAllowances}
             bankHoliday={bankHolidaysMap[day.dateStr]}
             config={config}
             isSelected={selectedDate === day.dateStr}
